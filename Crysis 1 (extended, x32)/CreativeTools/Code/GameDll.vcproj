@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9,00"
 	Name="CrysisMod"
 	ProjectGUID="{2EB52047-0A81-4343-B703-DF221CA5CC2A}"
 	RootNamespace="CrysisMod"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -49,7 +50,7 @@
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="0"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
 				ForceConformanceInForLoopScope="true"
@@ -72,13 +73,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/CrysisMod.dll"
+				OutputFile="$(OutDir)/CreativeTools.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/CrysisMod.pdb"
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/CrysisMod.lib"
 				TargetMachine="1"
 			/>
@@ -101,7 +104,97 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Profile|Win32"
+			OutputDirectory="$(SolutionDir)..\Bin32"
+			IntermediateDirectory="$(SolutionDir)..\BinTemp\$(PlatformName)\$(ConfigurationName)\$(ProjectName)\"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=".\;..\..\..\Code\CryEngine\CryCommon;..\..\..\Code\CryEngine\CryAction"
+				PreprocessorDefinitions="GAMEDLL_EXPORTS"
+				StringPooling="true"
+				ExceptionHandling="0"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="false"
+				EnableEnhancedInstructionSet="1"
+				FloatingPointModel="2"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="StdAfx.h"
+				WarningLevel="3"
+				WarnAsError="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/MyTools.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/CrysisMod.pdb"
+				LargeAddressAware="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				BaseAddress="0x39000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -168,100 +261,6 @@
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/CrysisMod.lib"
 				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-										<Configuration
-			Name="Profile|Win32"
-			OutputDirectory="$(SolutionDir)..\Bin32"
-			IntermediateDirectory="$(SolutionDir)..\BinTemp\$(PlatformName)\$(ConfigurationName)\$(ProjectName)\"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="3"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".\;..\..\..\Code\CryEngine\CryCommon;..\..\..\Code\CryEngine\CryAction"
-				PreprocessorDefinitions="GAMEDLL_EXPORTS"
-				StringPooling="true"
-				ExceptionHandling="0"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
-				ForceConformanceInForLoopScope="true"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				WarningLevel="3"
-				WarnAsError="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/CrysisMod.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/CrysisMod.pdb"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				BaseAddress="0x39000000"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -379,7 +378,7 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-																											</Configurations>
+	</Configurations>
 	<References>
 	</References>
 	<Files>
@@ -392,26 +391,26 @@
 				<FileConfiguration
 					Name="Debug|Xbox 360"
 					>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="0"
-			/>
+					<Tool
+						Name="VCCLX360CompilerTool"
+						UsePrecompiledHeader="0"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="DebugPS3|Xbox 360"
 					>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="0"
-			/>
+					<Tool
+						Name="VCCLX360CompilerTool"
+						UsePrecompiledHeader="0"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="ProfilePS3|Xbox 360"
 					>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="0"
-			/>
+					<Tool
+						Name="VCCLX360CompilerTool"
+						UsePrecompiledHeader="0"
+					/>
 				</FileConfiguration>
 			</File>
 		</Filter>
@@ -1229,10 +1228,10 @@
 						<FileConfiguration
 							Name="Profile|Xbox 360"
 							>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				ShowIncludes="false"
-			/>
+							<Tool
+								Name="VCCLX360CompilerTool"
+								ShowIncludes="false"
+							/>
 						</FileConfiguration>
 					</File>
 					<File
@@ -2002,6 +2001,14 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
+				Name="Profile|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Debug|x64"
 				>
 				<Tool
@@ -2012,10 +2019,10 @@
 			<FileConfiguration
 				Name="Debug|Xbox 360"
 				>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="1"
-			/>
+				<Tool
+					Name="VCCLX360CompilerTool"
+					UsePrecompiledHeader="1"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -2036,16 +2043,8 @@
 			<FileConfiguration
 				Name="Release|Xbox 360"
 				>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="1"
-			/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Profile|Win32"
-				>
 				<Tool
-					Name="VCCLCompilerTool"
+					Name="VCCLX360CompilerTool"
 					UsePrecompiledHeader="1"
 				/>
 			</FileConfiguration>
@@ -2060,26 +2059,26 @@
 			<FileConfiguration
 				Name="Profile|Xbox 360"
 				>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="1"
-			/>
+				<Tool
+					Name="VCCLX360CompilerTool"
+					UsePrecompiledHeader="1"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
 				Name="DebugPS3|Xbox 360"
 				>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="1"
-			/>
+				<Tool
+					Name="VCCLX360CompilerTool"
+					UsePrecompiledHeader="1"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
 				Name="ProfilePS3|Xbox 360"
 				>
-			<Tool
-				Name="VCCLX360CompilerTool"
-				UsePrecompiledHeader="1"
-			/>
+				<Tool
+					Name="VCCLX360CompilerTool"
+					UsePrecompiledHeader="1"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
 				Name="SP_DEMO|Win32"
