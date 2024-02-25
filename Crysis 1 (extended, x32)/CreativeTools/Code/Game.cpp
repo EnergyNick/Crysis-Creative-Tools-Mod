@@ -7,7 +7,7 @@
   
  -------------------------------------------------------------------------
   History:
-  - 3:8:2004   11:26 : Created by Márcio Martins
+  - 3:8:2004   11:26 : Created by Mï¿½rcio Martins
   - 17:8:2005        : Modified - NickH: Factory registration moved to GameFactory.cpp
 
 *************************************************************************/
@@ -365,6 +365,36 @@ bool CGame::Init(IGameFramework *pFramework)
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init end");
 #endif
+
+	// Mod setup
+	// Load mod spawn entity list ingame from xml file in mod folder 
+	XmlNodeRef spawnInfos = GetISystem()->LoadXmlFile("Game/Scripts/Entities/EntitySpawnList.xml");
+	if(spawnInfos)
+	{
+		for (int i = 0; i < spawnInfos->getChildCount(); ++i)
+		{
+			XmlNodeRef spawnInfo = spawnInfos->getChild(i);
+			if(spawnInfo)
+			{
+				XmlString key;
+				XmlString entityName;
+				bool isArchetype;
+				int distance;
+				float offset;
+
+				if (!spawnInfo->getAttr("commandKey", key)) continue;
+				if (!spawnInfo->getAttr("entityName", entityName)) continue;
+				
+				SSpawnEntityInfo result;
+				result.entityName = string(entityName.c_str());
+				result.isArchetypeName = spawnInfo->getAttr("useAsArchetype", isArchetype) ? isArchetype : false;
+				result.distanceFromUser = spawnInfo->getAttr("distanceFromPlayer", distance) ? distance : 5;
+				result.zOffset = spawnInfo->getAttr("heigthOffset", offset) ? offset : 0.5f;
+
+				m_spawnEntities[string(key.c_str())] = result;
+			}
+		}
+	}
 
 	return true;
 }
@@ -1039,4 +1069,10 @@ const char* CGame::GetMappedLevelName(const char *levelName) const
 { 
 	TLevelMapMap::const_iterator iter = m_mapNames.find(CONST_TEMP_STRING(levelName));
 	return (iter == m_mapNames.end()) ? levelName : iter->second.c_str();
+}
+
+const SSpawnEntityInfo* CGame::GetSpawnEntityInfo(const char* key) const
+{
+	TEntitySpawnInfosMap::const_iterator iter = m_spawnEntities.find(CONST_TEMP_STRING(key));
+	return (iter != m_spawnEntities.end()) ? &iter->second : NULL;
 }

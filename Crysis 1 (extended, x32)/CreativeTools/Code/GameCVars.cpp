@@ -931,6 +931,12 @@ void CGame::RegisterConsoleCommands()
 	m_pConsole->AddCommand("register", CmdRegisterNick, VF_CHEAT, "Register nickname with email, nickname and password");
 	m_pConsole->AddCommand("connect_crynet",CmdCryNetConnect,0,"Connect to online game server");
 	m_pConsole->AddCommand("preloadforstats","PreloadForStats()",VF_CHEAT,"Preload multiplayer assets for memory statistics.");
+
+	// Mod commands
+	m_pConsole->AddCommand("spawn_entity",CmdSpawnEntity,0,"Spawn entity by name near player. \nArgs:\n    entity_name (name of entity, see in Readme or Editor), \n    [optional] distanceOfSpawn [0 - average (default, for large entities), 1 - near (good for items)]");
+	m_pConsole->AddCommand("spawn_entity_a",CmdSpawnArchetype,0,"Spawn entity archetype by name near player. \nArgs: archetype_name (name of archetype of entity, see in specific map in Editor), \n    [optional] distanceOfSpawn [0 - average (default, for large entities), 1 - near (good for items)]");
+	m_pConsole->AddCommand("extend_power",CmdExtendPower,0,"Use for extending player characteristics to be more powerful");
+	m_pConsole->AddCommand("spawn",CmdSpawnFromList,0,"Spawn predefined entities by key, can find all items in *ModFolder*/Game/Scripts/Entities/EntitySpawnList.xml");
 }
 
 //------------------------------------------------------------------------
@@ -972,6 +978,196 @@ void CGame::UnregisterConsoleCommands()
 
 	// variables from CHUDCommon
 	m_pConsole->RemoveCommand("ShowGODMode");
+
+	// Mod commands
+	m_pConsole->RemoveCommand("spawn_entity");
+	m_pConsole->RemoveCommand("spawn_entity_a");
+	m_pConsole->RemoveCommand("extend_power");
+
+	m_pConsole->RemoveCommand("spawn");
+}
+
+//------------------------------------------------------------------------
+IEntity* GetPlayer()
+{
+	return g_pGame->GetIGameFramework()->GetClientActor()->GetEntity();
+}
+
+
+void SpawnEntity(IEntityClass* classType, IEntityArchetype* archetype, Vec3 pos, Quat rotation, int distance, float zOffset)
+{
+	SEntitySpawnParams spawnParams;
+	spawnParams.pClass = classType;
+	spawnParams.sName = "console-spawned-entity";
+	spawnParams.nFlags = ENTITY_FLAG_CASTSHADOW | ENTITY_FLAG_ON_RADAR | ENTITY_FLAG_CUSTOM_VIEWDIST_RATIO;
+
+	spawnParams.pArchetype = archetype;
+
+	Vec3 newPos = (rotation * Vec3(0, 1, 0)) * distance + pos;
+	Quat newRot = rotation;
+
+	spawnParams.vPosition = Vec3(newPos.x, newPos.y, newPos.z + zOffset);
+	spawnParams.qRotation = newRot;
+	spawnParams.vScale = Vec3(1, 1, 1);
+
+	IEntity *pEntity = gEnv->pEntitySystem->SpawnEntity(spawnParams);
+
+	if (pEntity)
+		CryLogAlways("Entity <%s> spawned!", classType->GetName());
+	else
+		CryLogAlways("Failed to spawn '%s'! Entity creation failed...", classType->GetName());
+}
+
+void CGame::CmdSpawnEntity(IConsoleCmdArgs *pArgs)
+{
+	if (pArgs->GetArgCount() != 2 && pArgs->GetArgCount() != 3)
+	{
+		CryLogAlways("Invalid count of arguments!");
+		return;
+	}
+
+	IEntity* player = GetPlayer();
+
+	const char* className = pArgs->GetArg(1);
+
+	IEntityClassRegistry* pRegistry = gEnv->pEntitySystem->GetClassRegistry();
+	IEntityClass* pClass = pRegistry->FindClass(className);
+
+	if (!pClass)
+	{
+		CryLogAlways("Can't find entity <%s> failed!", className);
+		return;
+	}
+
+	int distance = 10;
+	float zOffset = 2;
+	if (pArgs->GetArgCount() == 3)
+	{
+		int mode=atoi(pArgs->GetArg(2));
+		
+		switch (mode)
+		{
+		 case 0:
+			distance = 10;
+			zOffset = 2;
+			break;
+		 case 1:
+			distance = 4;
+			zOffset = 0.5;
+			break;
+		 default:
+			CryLogAlways("Incorrect mode, skip to default mode");
+			break;
+		}
+	}
+
+	SpawnEntity(pClass, NULL, player->GetPos(), player->GetRotation(), distance, zOffset);
+}
+
+//------------------------------------------------------------------------
+void CGame::CmdSpawnArchetype(IConsoleCmdArgs *pArgs)
+{
+	if (pArgs->GetArgCount() != 2 && pArgs->GetArgCount() != 3)
+	{
+		CryLogAlways("Invalid count of arguments!");
+		return;
+	}
+
+	IEntity* player = GetPlayer();
+
+	const char* typeName = pArgs->GetArg(1);
+	IEntityArchetype* archetype = gEnv->pEntitySystem->LoadEntityArchetype(typeName);
+
+	if (!archetype)
+	{
+		CryLogAlways("Archetype entity '%s' is not found...", typeName);
+		return;
+	}
+
+	int distance = 10;
+	float zOffset = 2;
+	if (pArgs->GetArgCount() == 3)
+	{
+		int mode=atoi(pArgs->GetArg(2));
+		
+		switch (mode)
+		{
+		 case 0:
+			distance = 10;
+			zOffset = 2;
+			break;
+		 case 1:
+			distance = 4;
+			zOffset = 0.5;
+			break;
+		 default:
+			CryLogAlways("Incorrect mode, skip to default mode");
+			break;
+		}
+	}
+
+	SpawnEntity(archetype->GetClass(), archetype, player->GetPos(), player->GetRotation(), distance, zOffset);
+}
+
+//------------------------------------------------------------------------
+void CGame::CmdExtendPower(IConsoleCmdArgs *pArgs)
+{
+	g_pGameCVars->g_suitSpeedEnergyConsumption = 50;
+	g_pGameCVars->g_suitCloakEnergyDrainAdjuster = 0.4f;
+	g_pGameCVars->g_suitArmorHealthValue = 350;
+	g_pGameCVars->g_suitRecoilEnergyCost = 10;
+	g_pGameCVars->g_playerHealthValue = 150;
+
+	CryLogAlways("Characteristics extended successful!");
+}
+
+//------------------------------------------------------------------------
+void CGame::CmdSpawnFromList(IConsoleCmdArgs *pArgs)
+{
+	if (pArgs->GetArgCount() != 2)
+	{
+		CryLogAlways("Invalid count of arguments!");
+		return;
+	}
+
+	const char* spawnEntityName = pArgs->GetArg(1);
+	const SSpawnEntityInfo* info = static_cast<CGame*>(gEnv->pGame)->GetSpawnEntityInfo(spawnEntityName);
+
+	if (!info)
+	{
+		CryLogAlways("Can't find key in spawnable list, check elements in EntitySpawnList.xml");
+		return;
+	}
+
+	IEntityClass* classType = NULL;
+	IEntityArchetype* archetype = NULL;
+	if (info->isArchetypeName)
+	{
+		const char* archName = info->entityName.c_str();
+
+		archetype = gEnv->pEntitySystem->LoadEntityArchetype(archName);
+		if (!archetype)
+		{
+			CryLogAlways("Error: Can't find archetype entity '%s', that level don't have definition, try on another", archName);
+			return;
+		}
+		classType = archetype->GetClass();
+	} 
+	else 
+	{
+		const char* className = info->entityName.c_str();
+
+		IEntityClassRegistry* pRegistry = gEnv->pEntitySystem->GetClassRegistry();
+		classType = pRegistry->FindClass(className);
+		if (!classType)
+		{
+			CryLogAlways("Internal error: Can't find entity <%s>!", className);
+			return;
+		}
+	}
+
+	IEntity* player = GetPlayer();
+	SpawnEntity(classType, archetype, player->GetPos(), player->GetRotation(), info->distanceFromUser, info->zOffset);
 }
 
 //------------------------------------------------------------------------

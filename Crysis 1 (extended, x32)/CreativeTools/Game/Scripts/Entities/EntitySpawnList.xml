@@ -1,0 +1,18 @@
+<EntitySpawnInfoList>
+    <info commandKey="vtol" entityName="US_vtol" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="2" />
+    <info commandKey="us-tank" entityName="US_tank" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="us-tank-gauss" entityName="Vehicles.Land.US_tank_wGauss" useAsArchetype="1" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="us-apc" entityName="US_apc" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="us-ltv" entityName="US_ltv" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="hovercraft" entityName="US_hovercraft" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="as-apc" entityName="Asian_apc" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="as-tank" entityName="Asian_tank" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="0.5" />
+    <info commandKey="helicopter" entityName="Asian_helicopter" useAsArchetype="0" distanceFromPlayer="10" heigthOffset="2" />
+
+    <info commandKey="scar" entityName="SCAR" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+    <info commandKey="gauss" entityName="GaussRifle" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+    <info commandKey="sniper" entityName="DSG1" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+    <info commandKey="rpg" entityName="LAW" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+    <info commandKey="biggun" entityName="Hurricane" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+    <info commandKey="c4" entityName="C4" useAsArchetype="0" distanceFromPlayer="2" heigthOffset="0.3" />
+</EntitySpawnInfoList>

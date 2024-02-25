@@ -63,6 +63,18 @@ class CSoundMoods;
 class CLaptopUtil;
 class CLCDWrapper;
 
+struct SSpawnEntityInfo
+{
+	string entityName;
+	bool isArchetypeName;
+
+	int distanceFromUser;
+	float zOffset;
+
+	SSpawnEntityInfo() : entityName(), isArchetypeName(), distanceFromUser(2), zOffset(0.4f)
+	{}
+};
+
 // when you add stuff here, also update in CGame::RegisterGameObjectEvents
 enum ECryGameEvent
 {
@@ -189,6 +201,8 @@ public:
   ILINE SCVars *GetCVars() {return m_pCVars;}
 	static void DumpMemInfo(const char* format, ...) PRINTF_PARAMS(1, 2);
 
+	virtual const SSpawnEntityInfo* GetSpawnEntityInfo(const char* key) const;
+
 protected:
 	virtual void LoadActionMaps(const char* filename = "libs/config/defaultProfile.xml");
 
@@ -238,6 +252,14 @@ protected:
 	static void CmdRegisterNick(IConsoleCmdArgs* pArgs);
   static void CmdCryNetConnect(IConsoleCmdArgs* pArgs);
 
+	// Mod functions
+  	static void CmdSpawnEntity(IConsoleCmdArgs *pArgs);
+	static void CmdSpawnArchetype(IConsoleCmdArgs *pArgs);
+	static void CmdExtendPower(IConsoleCmdArgs *pArgs);
+
+	static void CmdSpawnFromList(IConsoleCmdArgs *pArgs);
+	// ~Mod functions
+
 	IGameFramework			*m_pFramework;
 	IConsole						*m_pConsole;
 
@@ -284,6 +306,10 @@ protected:
 
 	typedef std::map<string, string, stl::less_stricmp<string> > TLevelMapMap;
 	TLevelMapMap m_mapNames;
+
+	// Mod infos
+	typedef std::map<string, SSpawnEntityInfo, stl::less_stricmp<string> > TEntitySpawnInfosMap;
+	TEntitySpawnInfosMap m_spawnEntities;
 };
 
 extern CGame *g_pGame;
