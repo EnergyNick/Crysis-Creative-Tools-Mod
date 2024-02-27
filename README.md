@@ -1,15 +1,20 @@
 # Crysis Creative Tools Mod
 
-The mod provides various tools for creativity, creating custom game situations and just for fun.
+The mod provides various tools for creativity, creating custom game situations and just for fun for Crysis and Crysis Warhead.
+
+**General features:**
+- Spawning vehicles, weapons, NPC, buildings?!, ...
+- Expanded suit stats to be more powerful (balanced rather than overpowered)
 
 ## Mod description
 
-> *Note: All elements in < > brackets need to be replaced by your values*
+> [!NOTE]
+> All elements in < > brackets need to be replaced by your values.
 
 
 Due to the lack of an SDK for Crysis Warhead, the modification exists in 2 versions:
 
-### [Script version] Universal, for Crysis 1, Crysis Warhead
+### **[Script version] Universal, for Crysis 1, Crysis Warhead**
 
 #### Features
 - Ability to spawn entities from game (weapons, vehicles, NPS, etc) with DebugGun.
@@ -27,9 +32,10 @@ Open console *[~ key]* and give debug gun by command ```i_giveitem DebugGun``` (
  3. On Reload *[R key]* - Try to find entity by name from console variable ```v_debugVehicle``` in entity list. On success select it for spawn. (You can set it from console by type ```v_debugVehicle <YOUR_VALUE>```)
  4. On ChangeMode *[X key]* - Remove last spawned entity.
 
-### [SDK version] Extended, for Crysis 1
+### **[SDK version] Extended, for Crysis 1**
 
-> **Warning!** Work only for Crysis 1, currently not support x64.
+> [!WARNING]
+> Work only for Crysis 1, currently not support x64.
 
 #### Features & How to use
 All features & tools from universal mod version!
@@ -61,11 +67,11 @@ Separated entity list in xml format, can find in ```<YOUR_GAME_FOLDER>\Mods\Crea
 
 ## FAQ
 
-- Q: Is this mod support Crysis Remastered?
-- A: Currently no, but maybe in future. 
+- Q: Is this mod support Crysis Remastered? <br />
+A: Currently no, but maybe in future. 
 
-- Q: What versions of Crysis / Crysis Warhead are supported?
-- A: Tested on Crysis (v.1.1.1.6156, GOG) and Crysis Warhead (v.1.1.1.711, GOG)
+- Q: What versions of Crysis / Crysis Warhead are supported? <br />
+A: Tested on Crysis (v.1.1.1.6156, GOG) and Crysis Warhead (v.1.1.1.711, GOG)
 
 
 ## Links
