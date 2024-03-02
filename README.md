@@ -17,7 +17,8 @@ Due to the lack of an SDK for Crysis Warhead, the modification exists in 2 versi
 ### **[Script version] Universal, for Crysis 1, Crysis Warhead**
 
 #### Features
-- Ability to spawn entities from game (weapons, vehicles, NPS, etc) with DebugGun.
+- Ability to spawn entities from game (weapons, vehicles, NPS, etc) with DebugGun. 
+- They are grouped into categories for ease of use ("From box" - US vehicles, Asian vehicles, weapons).
 - Customizable entity list of predefined entities for spawn (Just modify array in ```<YOUR_GAME_FOLDER>/Mods/CreativeTools/Game/Scripts/SpawnEntityList.lua```)
 - A little changes in suit balancing: Armor x1.5, player health x2, slightly reduced power consuming in cloak and speed modes (You can disable in ```<YOUR_GAME_FOLDER>/Mods/CreativeTools/Game/autoexec.cfg```).
 
@@ -27,10 +28,13 @@ Due to the lack of an SDK for Crysis Warhead, the modification exists in 2 versi
 Open console *[~ key]* and give debug gun by command ```i_giveitem DebugGun``` (case sensitive).
 
 **Available actions by debug gun:**
- 1. On Fire *[Left mouse click]* - Spawn entity on debug mark, choose by current vale of index from entity list. (On start is 1)
- 2. On Zoom *[Right mouse click]* - Increment index and select next entity. (You can check name of selected entity from console by command ```v_debugVehicle```)
- 3. On Reload *[R key]* - Try to find entity by name from console variable ```v_debugVehicle``` in entity list. On success select it for spawn. (You can set it from console by type ```v_debugVehicle <YOUR_VALUE>```)
- 4. On ChangeMode *[X key]* - Remove last spawned entity.
+ 1. On "Fire" *[Left mouse click]* - Spawn entity on debug mark, choose by current vale of index from entity list. (On start is 1)
+ 2. On "Zoom" *[Right mouse click]* - Increment elements index and select next entity.
+ 3. On "Reload" *[R key]* - Increment category index and select next entity.
+ 4. On "Melee Attack" *[T key]* - Show currently selected category and item to spawn.
+ 5. On "Change Fire Mode" *[X key]* - Remove last spawned entity.
+ 6. On "Open chat menu" *[Y key]* - Try to find entity by name from console variable ```v_debugVehicle``` in entity list. On success select it for spawn. (You can set it from console by type ```v_debugVehicle <YOUR_VALUE>```)
+
 
 ### **[SDK version] Extended, for Crysis 1**
 
