@@ -1,12 +1,62 @@
 Script.ReloadScript( "SCRIPTS/SpawnEntityList.lua");
 
+
 DebugGunProperties = {
 	minDistance = 3,
-	currentIndex = 1,
-	totalSpawnable = count(DebugGunSpawnList),
+	currentElementIndex = 1,
+	currentCategoryIndex = 1,
+	totalCategories = count(DebugGunSpawnList),
 	spawnedEntityPool = {}
 }
 
+local function getElementInCategory(index)
+	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[index]
+end
+
+local function getCurrentCategory()
+	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex]
+end
+
+local function getCurrentElement()
+	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[DebugGunProperties.currentElementIndex]
+end
+
+local function incrementElementIndexCycled()
+	local newIndex = DebugGunProperties.currentElementIndex + 1
+	local currentCategoryCount = count(DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements)
+	if (newIndex > currentCategoryCount) then
+		newIndex = 1
+	end
+	DebugGunProperties.currentElementIndex = newIndex
+
+	return newIndex
+end
+
+local function incrementCategoryIndexCycled()
+	local newIndex = DebugGunProperties.currentCategoryIndex + 1
+	if (newIndex > DebugGunProperties.totalCategories) then
+		newIndex = 1
+	end
+	DebugGunProperties.currentElementIndex = 1
+	DebugGunProperties.currentCategoryIndex = newIndex
+
+	return newIndex
+end
+
+local function tryFindElementAndSetByName(elementName)
+	for catInd, category in pairs(DebugGunSpawnList) do
+		for i, value in pairs(category.categoryElements) do
+
+			if value.name == elementName then
+				DebugGunProperties.currentElementIndex = i
+				DebugGunProperties.currentCategoryIndex = catInd
+				return true
+			end
+		end
+	end
+
+	return false
+end
 
 -- Customization of entity
 function CustomizeSpawned(entity, spawnInfo)
@@ -18,12 +68,17 @@ end
 
 function Player:SpawnerToolAction(action, isPressed)
 
+	local wep = self.inventory:GetCurrentItem();
+	if (not wep or wep.class ~= "DebugGun") then
+		return
+	end
+
     if (action == "attack1" and isPressed) then
 
 		local wep = self.inventory:GetCurrentItem();
 		if (wep and wep.class == "DebugGun") then
 
-			local currentItem = DebugGunSpawnList[DebugGunProperties.currentIndex];
+			local currentItem = getCurrentElement();
 
 			local rayfilter = ent_all;
 			local rayLimit = 25;
@@ -35,12 +90,9 @@ function Player:SpawnerToolAction(action, isPressed)
 			ScaleVectorInPlace(direction, rayLimit);
 
 			local hits = Physics.RayWorldIntersection(position,direction,2,rayfilter,self.id,nil,g_HitTable);
-		
-			if (hits == 0) then
-				return;
-			end
 
-			if (g_HitTable[1].dist < DebugGunProperties.minDistance) then
+			if (hits == 0 or g_HitTable[1].dist < DebugGunProperties.minDistance) then
+				HUD.HitIndicator();
 				return;
 			end
 
@@ -52,7 +104,7 @@ function Player:SpawnerToolAction(action, isPressed)
 				archetype = currentItem.archetype,
 				position = pos,
 				orientation = self:GetDirectionVector(1),
-				name = "SpawnedEntity_"..currentItem.name,
+				name = currentItem.name,
 				scale = self:GetScale(),
 				-- properties = self.Properties,
 				-- propertiesInstance = self.PropertiesInstance,
@@ -60,58 +112,74 @@ function Player:SpawnerToolAction(action, isPressed)
 			local entity = System.SpawnEntity(params)
 
 			if (entity) then
+				HUD.DrawStatusText("Spawned ["..currentItem.name.."]");
+
 				CustomizeSpawned(entity, currentItem)
 
 				table.insert(DebugGunProperties.spawnedEntityPool, entity)
+			else
+				-- If you see that error enter to console "log_verbosity 3" to see error message
+				HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 2, 400, 275, { x=1, y=0, z=0});
 			end
 		end
 	end
 
 	if (action == "reload" and isPressed) then
 
-		local wep = self.inventory:GetCurrentItem();
-		if (wep and wep.class == "DebugGun") then
+		local newIndex = incrementCategoryIndexCycled()
 
-			local type = System.GetCVar("v_debugVehicle");
+		local newCategoryName = DebugGunSpawnList[newIndex].name
 
-			if (not type or string.len(type) == 0) then
-				return;
-			end
-
-			for i, value in pairs(DebugGunSpawnList) do
-				if value.name == type then
-					DebugGunProperties.currentIndex = i
-					return
-				end
-			end
-		end
+		HUD.DisplayBigOverlayFlashMessage("Switch category to ["..newCategoryName.."]", 1, 400, 375, { x=0.3, y=1, z=0.3 });
 	end
 
 
 	if (action == "zoom" and isPressed) then
 
-		local wep = self.inventory:GetCurrentItem();
-		if (wep and wep.class == "DebugGun") then
+		local newIndex = incrementElementIndexCycled()
 
-			local newIndex = DebugGunProperties.currentIndex + 1
-			if (newIndex > DebugGunProperties.totalSpawnable) then
-				newIndex = 1
-			end
-			DebugGunProperties.currentIndex = newIndex
+		local newElementName = getElementInCategory(newIndex).name
 
-			System.SetCVar("v_debugVehicle", DebugGunSpawnList[newIndex].name)
+		HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..newElementName.."]", 1, 400, 375, { x=0.5, y=0.8, z=0.9});
+	end
+
+	if (action == "hud_openchat" and isPressed) then
+
+		local type = System.GetCVar("v_debugVehicle");
+
+		if (not type or string.len(type) == 0) then
+			HUD.HitIndicator();
+			return;
+		end
+
+		if (tryFindElementAndSetByName(type)) then
+			HUD.DisplayBigOverlayFlashMessage("Selected entity from CVar = "..type, 0.5, 400, 375, { x=1, y=1, z=1});
+		else
+			-- When entered not existing entity name
+			HUD.HitIndicator();
 		end
 	end
 
+	if (action == "special" and isPressed) then
+
+		local categoryName = getCurrentCategory().name
+		local elementName = getCurrentElement().name
+		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 1, 400, 375, { x=1, y=1, z=1 });
+	end
+
 	if (action == "firemode" and isPressed) then
+
 		local lastIndex = count(DebugGunProperties.spawnedEntityPool)
 
 		if (lastIndex == 0) then
+			HUD.HitIndicator();
 			return;
 		end
 
 		local lastEntity = DebugGunProperties.spawnedEntityPool[lastIndex]
 		table.remove(DebugGunProperties.spawnedEntityPool, lastIndex)
 		System.RemoveEntity(lastEntity.id);
+
+		HUD.DrawStatusText("Removed ["..lastEntity:GetName().."]");
 	end
 end
