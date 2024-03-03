@@ -119,7 +119,7 @@ function Player:SpawnerToolAction(action, isPressed)
 				table.insert(DebugGunProperties.spawnedEntityPool, entity)
 			else
 				-- If you see that error enter to console "log_verbosity 3" to see error message
-				HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 2, 400, 275, { x=1, y=0, z=0});
+				HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 4, 400, 275, { x=1, y=0, z=0});
 			end
 		end
 	end
@@ -130,7 +130,7 @@ function Player:SpawnerToolAction(action, isPressed)
 
 		local newCategoryName = DebugGunSpawnList[newIndex].name
 
-		HUD.DisplayBigOverlayFlashMessage("Switch category to ["..newCategoryName.."]", 1, 400, 375, { x=0.3, y=1, z=0.3 });
+		HUD.DisplayBigOverlayFlashMessage("Switch category to ["..newCategoryName.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
 	end
 
 
@@ -140,7 +140,7 @@ function Player:SpawnerToolAction(action, isPressed)
 
 		local newElementName = getElementInCategory(newIndex).name
 
-		HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..newElementName.."]", 1, 400, 375, { x=0.5, y=0.8, z=0.9});
+		HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..newElementName.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
 	end
 
 	if (action == "hud_openchat" and isPressed) then
@@ -148,15 +148,15 @@ function Player:SpawnerToolAction(action, isPressed)
 		local type = System.GetCVar("v_debugVehicle");
 
 		if (not type or string.len(type) == 0) then
-			HUD.HitIndicator();
+			HUD.DrawStatusText("Not set entity name to CVar 'v_debugVehicle' for search, skip");
 			return;
 		end
 
 		if (tryFindElementAndSetByName(type)) then
-			HUD.DisplayBigOverlayFlashMessage("Selected entity from CVar = "..type, 0.5, 400, 375, { x=1, y=1, z=1});
+			HUD.DisplayBigOverlayFlashMessage("Selected entity from CVar = "..type, 2, { x=1, y=1, z=1});
 		else
 			-- When entered not existing entity name
-			HUD.HitIndicator();
+			HUD.DrawStatusText("Error: Can't find element be name ["..type.."]");
 		end
 	end
 
@@ -164,7 +164,7 @@ function Player:SpawnerToolAction(action, isPressed)
 
 		local categoryName = getCurrentCategory().name
 		local elementName = getCurrentElement().name
-		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 1, 400, 375, { x=1, y=1, z=1 });
+		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 2, 400, 375, { x=1, y=1, z=1 });
 	end
 
 	if (action == "firemode" and isPressed) then
