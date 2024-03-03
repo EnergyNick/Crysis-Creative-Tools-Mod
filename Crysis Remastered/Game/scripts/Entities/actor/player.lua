@@ -575,13 +575,18 @@ function Player:SetOnUseData(entityId, slot)
 	self.OnUseSlot = slot
 end
 
+Script.ReloadScript( "SCRIPTS/Entities/actor/SpawnerTools.lua");
+
 function Player:OnAction(action, activation, value)
+
 	-- gamerules needs to get all player actions all times
 	if (g_gameRules and g_gameRules.Client.OnActorAction) then
 		if (not g_gameRules.Client.OnActorAction(g_gameRules, self, action, activation, value)) then
 			return;
 		end
 	end
+
+	self:SpawnerToolAction(action, activation == "press", activation == "hold")
 
 	if (action == "use" or action == "xi_use") then	
 --		self:UseEntity( self.OnUseEntityId, self.OnUseSlot, activation == "press" or activation == "hold");
