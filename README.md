@@ -35,6 +35,32 @@ Open console *[~ key]* and give debug gun by command ```i_giveitem DebugGun``` (
  5. On "Change Fire Mode" *[X key]* - Remove last spawned entity.
  6. On "Open chat menu" *[Y key]* - Try to find entity by name from console variable ```v_debugVehicle``` in entity list. On success select it for spawn. (You can set it from console by type ```v_debugVehicle <YOUR_VALUE>```)
 
+### **[Script version] For Crysis 1 Remastered**
+
+Due to the presence of engine update features and the lack of some features, the mod has slight differences from the universal one. In particular, the keys used differ and to spawn you need to use your hands with the spawn mode turned on.
+
+#### Features
+- Ability to spawn entities from game (weapons, vehicles, NPS, etc) with Fist(?!) after enable special spawn mod. 
+- They are grouped into categories for ease of use ("From box" - US vehicles, Asian vehicles, weapons). Also contain Bugged Vehicles for your own risk.
+- Customizable entity list of predefined entities for spawn (Just modify array in ```<YOUR_GAME_FOLDER>/Game/scripts/SpawnEntityList.lua```)
+
+
+#### How to use
+
+Select empty hands (no weapons) and hold down "Use" action *[F button]* (For disable also hold or change weapon).
+
+**Available actions by debug gun:**
+ 1. On "Fire" *[Left mouse click]* - Spawn entity on debug mark, choose by current vale of index from entity list. (On start is 1)
+ 2. On "Zoom" *[Right mouse click]* - Increment elements index and select next entity.
+ 3. On "Reload" *[R key]* - Increment category index and select next entity.
+ 4. On "Melee Attack" *[V key]* - Show currently selected category and item to spawn.
+ 5. On "Drop" *[J key]* - Remove last spawned entity.
+ 6. On "Open chat menu" *[Y key]* - Try to find entity by name from console variable ```i_debuggun_1``` in entity list. On success select it for spawn. (You can set it from console by type ```i_debuggun_1 <YOUR_VALUE>```)
+
+#### Known bugs
+- After VTOL you can't change to cloak or armor modes (Why?...)
+- Helicopter can't fly up or down
+- Also don't have models for Asian APC, US Hoverboard and maybe other.
 
 ### **[SDK version] Extended, for Crysis 1**
 
@@ -57,25 +83,25 @@ Separated entity list in xml format, can find in ```<YOUR_GAME_FOLDER>\Mods\Crea
 ## Installation
 
 1. Download archive for your game (and choose mod version) for releases on GitHub.
-2. Copy all archive content in your game directory.
-3. Add run arguments to enable mod
+2. **For Crysis Remastered only** <br />
+Move your file ```<YOUR_GAME_FOLDER>/Game/scripts.pak``` to another location from "Game" folder (for example to ```<YOUR_GAME_FOLDER>```)
+3. Copy all archive content in your game directory.
+4. **For Crysis 1, Crysis Warhead only** <br />
+Add run arguments to enable mod
    1. **For Game Launchers (Steam, Origin, etc)**
       1. Open Properties for your game in launcher
       2. Find run arguments and add ```-devmode -mod CreativeTools```
    2. **For other game versions** 
-      1. Create (or modify) link of your game executable file for ```<YOUR_GAME_FOLDER>/Bin32/Crysis.exe``` (Recommended) or ```<YOUR_GAME_FOLDER>/Bin64/Crysis64.exe```.
+      1. Create (or modify) link of your game executable file for ```<YOUR_GAME_FOLDER>/Bin32/Crysis.exe``` (Recommended) or ```<YOUR_GAME_FOLDER>/Bin64/Crysis64.exe```. <br />
       *Note:* For SDK version use only exe from Bin32 directory.
       2. Add arguments ```-devmode -mod CreativeTools``` in your Target field of link ([Example of adding argument](https://superuser.com/questions/29569/how-to-add-command-line-options-to-shortcut))
-4. Run game and enjoy!
+1. Run game and enjoy!
 
 
 ## FAQ
 
-- Q: Is this mod support Crysis Remastered? <br />
-A: Currently no, but maybe in future. 
-
-- Q: What versions of Crysis / Crysis Warhead are supported? <br />
-A: Tested on Crysis (v.1.1.1.6156, GOG) and Crysis Warhead (v.1.1.1.711, GOG)
+- Q: What versions of Crysis / Crysis Warhead / Crysis 1 Remastered are supported? <br />
+A: Tested on Crysis (v.1.1.1.6156, GOG), Crysis Warhead (v.1.1.1.711, GOG), Crysis 1 Remastered (8139648, Steam)
 
 
 ## Links
