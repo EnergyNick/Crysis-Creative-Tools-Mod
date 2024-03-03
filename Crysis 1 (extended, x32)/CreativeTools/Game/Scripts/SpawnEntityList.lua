@@ -81,8 +81,26 @@ DebugGunSpawnList =
 				zOffset = 0.5
 			},
 			{
+				name = "as-aircraftgun",
+				class = "Asian_aaa",
+				archetype = nil,
+				zOffset = 0.5
+			},
+			{
+				name = "as-track",
+				class = "Asian_truck",
+				archetype = nil,
+				zOffset = 0.5
+			},
+			{
 				name = "as-ltv",
 				class = "Asian_ltv",
+				archetype = nil,
+				zOffset = 0.5
+			},
+			{
+				name = "as-boat",
+				class = "Asian_patrolboat",
 				archetype = nil,
 				zOffset = 0.5
 			},
@@ -96,6 +114,12 @@ DebugGunSpawnList =
 			{
 				name = "scar",
 				class = "SCAR",
+				archetype = nil,
+				zOffset = 0.3
+			},
+			{
+				name = "FY71",
+				class = "FY71",
 				archetype = nil,
 				zOffset = 0.3
 			},

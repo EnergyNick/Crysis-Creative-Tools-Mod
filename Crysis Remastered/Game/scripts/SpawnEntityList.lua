@@ -83,6 +83,12 @@ DebugGunSpawnList =
 				zOffset = 0.3
 			},
 			{
+				name = "FY71",
+				class = "FY71",
+				archetype = nil,
+				zOffset = 0.3
+			},
+			{
 				name = "gauss",
 				class = "GaussRifle",
 				archetype = nil,
