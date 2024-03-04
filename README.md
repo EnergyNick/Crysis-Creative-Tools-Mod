@@ -106,5 +106,8 @@ A: Tested on Crysis (v.1.1.1.6156, GOG), Crysis Warhead (v.1.1.1.711, GOG), Crys
 
 ## Links
 
-Fix of start game crash for AMD processors
+**Fix of start game on modern PC (Win10/11, AMD processor) for Crysis 1/Crysis Warhead** <br />
+https://github.com/ccomrade/c1-launcher/releases
+
+**Another fix of start crash for Crysis 1  on AMD processors** <br />
 https://community.pcgamingwiki.com/files/file/1411-crysis-amds-3d-now-fix
