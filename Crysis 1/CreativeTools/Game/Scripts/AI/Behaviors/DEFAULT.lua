@@ -1522,17 +1522,10 @@ AIBehaviour.DEFAULT = {
 	end,
 
 	---------------------------------------------
-	ACT_ENTERVEHICLE = function( self, entity, sender, data )
-		if ( entity.AI.theVehicle ) then
-			-- fail if already inside a vehicle
-			entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_dummy", nil, data.iValue );
-			entity:CancelSubpipe( data.iValue );
-			return;
-		end
-		
+	ACT_ENTERVEHICLE = function( self, entity, sender, data )		
 		-- get the vehicle
-		entity.AI.theVehicle = System.GetEntity( data.id );
-	 	if ( entity.AI.theVehicle == nil ) then
+		local vehicleToEnter = System.GetEntity( data.id );
+	 	if ( vehicleToEnter == nil ) then
 	 		-- no vehicle found
 			AI.LogEvent( entity:GetName().." couldn't find the vehicle to enter" );
 			entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_enter", nil, data.iValue );
@@ -1540,46 +1533,50 @@ AIBehaviour.DEFAULT = {
 	 		return;
 	 	end
 
-		local numSeats = count( entity.AI.theVehicle.Seats );
-		--local numMembers = AI.GetGroupCount( entity.id, GROUP_ENABLED, AIOBJECT_PUPPET );
+		local isFastEnter = data.iValue2 == 1
+		if ( entity.AI.theVehicle ) then
 
-		--local seatIndex = data.fValue;
-		if ( data.fValue<1 or data.fValue>numSeats ) then
-			entity.AI.mySeat = entity.AI.theVehicle:RequestClosestSeat( entity.id );
+			-- if entity.AI.theVehicle.id ~= vehicleToEnter.id then
+				entity.AI.theVehicle:LeaveVehicle(entity.id, false);
+				entity.AI.theVehicle = nil;
+
+				-- fail if already inside a vehicle
+				entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_dummy", nil, data.iValue );
+				entity:CancelSubpipe( data.iValue );
+				return
+			-- end
+			
+			-- Use fast, if unit can't enter to vehicle previously (maybe or bug in state)
+			-- alternate way = always leave and get another retry
+			-- isFastEnter = true
+		end
+
+		local numSeats = count( vehicleToEnter.Seats );
+		if ( data.fValue < 1 or data.fValue > numSeats ) then
+			entity.AI.mySeat = vehicleToEnter:RequestClosestSeat( entity.id );
 		else
 			entity.AI.mySeat = data.fValue;
 		end
+
 		
 		if ( entity.AI.mySeat==nil ) then
-			AI.LogEvent(entity:GetName().." aborting enter vehicle "..entity.AI.theVehicle:GetName());
+			AI.LogEvent(entity:GetName().." aborting enter vehicle "..vehicleToEnter:GetName());
 			entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_enter", nil, data.iValue );
 			entity:CancelSubpipe( data.iValue );
 			return
 		end
 		
+		entity.AI.theVehicle = vehicleToEnter
 		entity.AI.theVehicle:ReserveSeat( entity.id, entity.AI.mySeat );
-		if ( entity.AI.theVehicle:IsDriver(entity.id) ) then
-			-- I'm the driver
---			entity.AI.theVehicle.AI.driver = entity;
---			entity.AI.theVehicle.AI.countVehicleCrew = 0;
-			
-			--if ( numSeats<numMembers ) then
-			--	entity.AI.theVehicle.AI.vehicleCrewNumber = numSeats;
-			--else
-			--	entity.AI.theVehicle.AI.vehicleCrewNumber = numMembers;
-			--end			
-		end
-		
+
 		-- check is fast entering needed
-		if ( data.iValue2 == 1 ) then
+		if (isFastEnter) then
 			entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_enter_fast", nil, data.iValue );
 		else
 			entity:InsertSubpipe( AIGOALPIPE_SAMEPRIORITY, "action_enter", nil, data.iValue );
 		end
 
 		entity.AI.theVehicle.AI.goalType = AIGOALTYPE_UNDEFINED;
-		--entity.AI.theVehicle.AI.goalType	= data.iValue;
---		AI.LogEvent(entity:GetName().." is going to enter vehicle "..entity.AI.theVehicle:GetName().." with goal type = "..(entity.AI.theVehicle.AI.goalType or "nil"));
 		AI.Signal( SIGNALFILTER_SENDER, 0, "ENTERING_VEHICLE", entity.id );
 	end,	
 
