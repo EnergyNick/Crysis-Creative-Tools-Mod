@@ -66,7 +66,7 @@ function CustomizeSpawned(entity, spawnInfo)
 	end
 end
 
-function Player:SpawnerToolAction(action, isPressed)
+function Player:SpawnerToolAction(action, isPressed, isHold)
 
 	local wep = self.inventory:GetCurrentItem();
 	if (not wep or wep.class ~= "DebugGun") then

@@ -491,12 +491,14 @@ function Player:OnAction(action, activation, value)
 		end
 	end
 
-	self:SpawnerToolAction(action, activation == "press")
+	-- Library logic to initialize spawn tool behavior
+	self:SpawnerToolAction(action, activation == "press", activation == "hold")
 
 	if (action == "use" or action == "xi_use") then	
 		self:UseEntity( self.OnUseEntityId, self.OnUseSlot, activation == "press");
 	end
 end
+
 
 function Player:OnActionUse(press)
 	self:UseEntity( self.OnUseEntityId, self.OnUseSlot, press);
