@@ -481,7 +481,7 @@ function Player:SetOnUseData(entityId, slot)
 	self.OnUseSlot = slot
 end
 
-Script.ReloadScript("SCRIPTS/Entities/actor/SpawnerTools.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/SpawnerTools.lua");
 
 function Player:OnAction(action, activation, value)
 	-- gamerules needs to get all player actions all times

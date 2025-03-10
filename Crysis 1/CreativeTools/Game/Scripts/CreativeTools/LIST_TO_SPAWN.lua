@@ -8,9 +8,9 @@
 -- archetype => Name of archetype entity, can find in Editor or from game files [Optional]
 -- offset    => Offset from ground to spawn entity [Required]
 
-DebugGunSpawnList =
+EntitySpawnList =
 {
-    {
+	{
 		name = "US Vehicles",
 		categoryElements =
 		{
@@ -58,7 +58,7 @@ DebugGunSpawnList =
 			},
 		}
 	},
-	{
+    {
 		name = "Asian Vehicles",
 		categoryElements =
 		{
@@ -80,7 +80,7 @@ DebugGunSpawnList =
 				archetype = nil,
 				zOffset = 0.5
 			},
-			{
+    {
 				name = "as-aircraftgun",
 				class = "Asian_aaa",
 				archetype = nil,

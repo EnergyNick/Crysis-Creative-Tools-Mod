@@ -1,5 +1,6 @@
-Script.ReloadScript("SCRIPTS/SpawnEntityList.lua");
 Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/BehaviorsCatalog.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/LIST_TO_SPAWN.lua");
 
 
 DebugGunProperties = {
@@ -7,26 +8,26 @@ DebugGunProperties = {
 	maxDistance = 25,
 	currentElementIndex = 1,
 	currentCategoryIndex = 1,
-	totalCategories = count(DebugGunSpawnList),
+	totalCategories = count(EntitySpawnList),
 	spawnedEntityPool = {},
 	creationIndexSequence = 0
 }
 
 local function getElementInCategory(index)
-	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[index]
+	return EntitySpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[index]
 end
 
 local function getCurrentCategory()
-	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex]
+	return EntitySpawnList[DebugGunProperties.currentCategoryIndex]
 end
 
 local function getCurrentElement()
-	return DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[DebugGunProperties.currentElementIndex]
+	return EntitySpawnList[DebugGunProperties.currentCategoryIndex].categoryElements[DebugGunProperties.currentElementIndex]
 end
 
 local function incrementElementIndexCycled()
 	local newIndex = DebugGunProperties.currentElementIndex + 1
-	local currentCategoryCount = count(DebugGunSpawnList[DebugGunProperties.currentCategoryIndex].categoryElements)
+	local currentCategoryCount = count(EntitySpawnList[DebugGunProperties.currentCategoryIndex].categoryElements)
 	if (newIndex > currentCategoryCount) then
 		newIndex = 1
 	end
@@ -47,7 +48,7 @@ local function incrementCategoryIndexCycled()
 end
 
 local function tryFindElementAndSetByName(elementName)
-	for catInd, category in pairs(DebugGunSpawnList) do
+	for catInd, category in pairs(EntitySpawnList) do
 		for i, value in pairs(category.categoryElements) do
 
 			if value.name == elementName then
@@ -67,11 +68,14 @@ local function getNewIndexForSpawnedEntity()
 	return res
 end
 
-
 function Player:EntityAdditionalActions(entity, spawnInfo, newEntitiesGroup)
 
 	if (spawnInfo.name == "vtol") then
 		entity.vehicle:SetAmmoCount("a2ahomingmissile", 12);
+	end
+
+	if (spawnInfo.behavior) then
+		RunBehaviorByName(spawnInfo.behavior, entity, self)
 	end
 
 	if spawnInfo.crew then
@@ -88,7 +92,6 @@ function Player:EntityAdditionalActions(entity, spawnInfo, newEntitiesGroup)
 				name = name,
 				scale = self:GetScale(),
 				properties = currentItem.properties,
-				-- propertiesInstance = self.PropertiesInstance,
 			}
 			local subEntity = System.SpawnEntity(params)
 
@@ -164,7 +167,7 @@ function Player:SpawnerToolAction(action, isPressed, isHold)
 
 		local newIndex = incrementCategoryIndexCycled()
 
-		local newCategoryName = DebugGunSpawnList[newIndex].name
+		local newCategoryName = EntitySpawnList[newIndex].name
 
 		HUD.DisplayBigOverlayFlashMessage("Switch category to ["..newCategoryName.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
 	end
@@ -196,7 +199,6 @@ function Player:SpawnerToolAction(action, isPressed, isHold)
 	end
 
 	if (action == "special" and isPressed) then
-
 		local categoryName = getCurrentCategory().name
 		local elementName = getCurrentElement().name
 		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 2, 400, 375, { x=1, y=1, z=1 });

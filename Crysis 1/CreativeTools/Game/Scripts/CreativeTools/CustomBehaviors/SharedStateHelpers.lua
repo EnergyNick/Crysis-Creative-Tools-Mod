@@ -1,6 +1,6 @@
 Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
 Script.ReloadScript("Scripts/Utils/Math.lua");
-Script.ReloadScript("Scripts/StateMachine.lua");
+Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateMachine.lua");
 
 local function defaultOnStateChange(self, event, from, to)
     self.timePointOfOperation = 0
@@ -25,7 +25,7 @@ end
 
 local function safetyIterationHelper(state)
   if not state.nextIterationTimer then
-    state.nextIterationTimer = Script.SetTimer(1000, FollowerManagerIteration, state)
+    state.nextIterationTimer = Script.SetTimer(1000, StateManagerIteration, state)
   end
 end
 
