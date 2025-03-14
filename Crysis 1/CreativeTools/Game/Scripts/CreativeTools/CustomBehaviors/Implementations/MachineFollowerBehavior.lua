@@ -99,8 +99,8 @@ local behaviorSetup =
     end,
   },
 
-  onFinishAction = function(state, isDead)
-    if (isDead) then
+  onCompleteAction = function(state)
+    if (state.entity:IsDead()) then
       KillAllPassengersInVehicle(state.entity)
     end
   end

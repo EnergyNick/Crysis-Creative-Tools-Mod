@@ -260,7 +260,6 @@ local function ExitByChainAndGoToRandomPoint(data)
 
   -- TODO: Add logic of trace to find, if entity can go to resultPosition, either make distance shorter
   OrderEntityGoToPosition(data.entity, resultPosition)
-  HUD.DrawStatusText("Order to go complete")
 end
 
 function StartExitByChainAndGoToRandomPointAsync(entity, seatIndex, previousPassenger, initialDelay)

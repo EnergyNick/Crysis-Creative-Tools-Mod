@@ -25,10 +25,10 @@ function CreateStateManagerBasedOnPreset(preset, entity)
     end
 
     fsm.enableBehavior = true
-    fsm.CompleteBehavior = function (self, isDead)
+    fsm.CompleteBehavior = function (self)
         self.enableBehavior = false
         if (preset.onCompleteAction) then
-            preset.onCompleteAction(self, isDead)
+            preset.onCompleteAction(self)
         end
     end
 
@@ -49,7 +49,7 @@ function StateManagerIteration(state)
     if (not state.enableBehavior) then return end
 
     if (state.entity:IsDead()) then
-        state:CompleteBehavior(true)
+        state:CompleteBehavior()
         return
     end
 
