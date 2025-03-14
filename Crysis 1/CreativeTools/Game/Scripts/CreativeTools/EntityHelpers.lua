@@ -227,6 +227,53 @@ function TakeoffAirVehicle(vehicle)
 	end, vehicle)
 end
 
+local function ExitByChainAndGoToRandomPoint(data)
+
+  if not data.isExited then
+    if (not data.previousPassenger or not data.previousPassenger:IsOnVehicle()) then
+      ExitVehicle(data.entity)
+      data.isExited = true
+    end
+
+    Script.SetTimer(1500, ExitByChainAndGoToRandomPoint, data)
+    return
+  end
+
+  if (data.entity:IsOnVehicle()) then
+    Script.SetTimer(500, ExitByChainAndGoToRandomPoint, data)
+    return
+  end
+
+  local vMyFwd = g_Vectors.temp_v1;
+  CopyVector(vMyFwd, data.entity:GetDirectionVector(1));
+  vMyFwd.z = 0.0;
+  NormalizeVector(vMyFwd);
+
+  local deltaAngle = data.seatIndex * 25 * (3.1416 / 180.0);
+  local vMyFwdRot = g_Vectors.temp_v2;
+  RotateVectorAroundR(vMyFwdRot, vMyFwd, data.entity:GetDirectionVector(2), deltaAngle);
+
+  local distanceToGo = random(3, 6)
+  local resultPosition = g_Vectors.temp_v3;
+  ScaleVectorInPlace(vMyFwdRot, distanceToGo);
+  FastSumVectors(resultPosition, data.entity:GetPos(), vMyFwdRot);
+
+  -- TODO: Add logic of trace to find, if entity can go to resultPosition, either make distance shorter
+  OrderEntityGoToPosition(data.entity, resultPosition)
+  HUD.DrawStatusText("Order to go complete")
+end
+
+function StartExitByChainAndGoToRandomPointAsync(entity, seatIndex, previousPassenger, initialDelay)
+  local data = {
+    entity = entity,
+    seatIndex = seatIndex,
+    previousPassenger = previousPassenger,
+    isExited = false
+  }
+
+  Script.SetTimer(initialDelay or 8000, ExitByChainAndGoToRandomPoint, data)
+end
+
 ---------------------------------------------------------------------------------------------------------
 -- AI helpers
 
