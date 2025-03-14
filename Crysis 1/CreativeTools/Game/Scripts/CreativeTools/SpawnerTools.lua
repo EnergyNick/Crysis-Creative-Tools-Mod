@@ -68,20 +68,19 @@ local function getNewIndexForSpawnedEntity()
 	return res
 end
 
-function Player:EntityAdditionalActions(entity, spawnInfo, newEntitiesGroup)
+function Player:EntityAdditionalActions(entity, spawnInfo, hitPosition, newEntitiesGroup)
 
 	if (spawnInfo.name == "vtol") then
 		entity.vehicle:SetAmmoCount("a2ahomingmissile", 12);
 	end
 
-	if (spawnInfo.behavior) then
-		RunBehaviorByName(spawnInfo.behavior, entity, self)
-	end
-
+	local spawnedCrew = {}
 	if spawnInfo.crew then
 		for i, currentItem in pairs(spawnInfo.crew) do
 			local position = entity:GetPos();
-			position.x = position.x + 5
+			local elevation = System.GetTerrainElevation(position);
+			position.x = position.x + 5 * i
+			position.z = elevation - 5
 
 			local name = currentItem.name.." ["..getNewIndexForSpawnedEntity().."]"
 			local params = {
@@ -97,16 +96,93 @@ function Player:EntityAdditionalActions(entity, spawnInfo, newEntitiesGroup)
 
 			if(subEntity) then
 				EnterVehicle(subEntity, entity, i, true)
+
+				table.insert(spawnedCrew, subEntity)
 				table.insert(newEntitiesGroup, subEntity)
 			end
 		end
 	end
+
+	if (spawnInfo.behavior) then
+		RunBehaviorByName(spawnInfo.behavior, entity, self, hitPosition, spawnedCrew)
+	end
+end
+
+function Player:MuzzleTrace(currentItemPreset)
+	local rayfilter = ent_all;
+	local rayLimit = currentItemPreset.maxDistanceOverride or DebugGunProperties.maxDistance;
+
+	local direction = g_Vectors.temp_v1;
+	local cameraDirection = System.GetViewCameraDir()
+	CopyVector(direction, cameraDirection);
+	ScaleVectorInPlace(direction, rayLimit);
+
+	local position = g_Vectors.temp_v2;
+	self.actor:GetHeadPos(position);
+
+	local hits = Physics.RayWorldIntersection(position,direction,2,rayfilter,self.id,nil,g_HitTable);
+
+	local minDistanceToSpawn = currentItemPreset.minDistanceOverride or DebugGunProperties.minDistance
+	if (hits == 0 or g_HitTable[1].dist < minDistanceToSpawn) then
+		return nil;
+	end
+
+	local data = {
+		position = g_HitTable[1].pos,
+		entity = g_HitTable[1].entity,
+		distance = g_HitTable[1].dist
+	}
+	return data;
+end
+
+function Player:SpawnEntity(positionToSpawn, currentItemPreset)
+	local cameraDirection = System.GetViewCameraDir()
+
+	if (currentItemPreset.spawnDistanceAbovePlayer) then
+		cameraDirection.x = -cameraDirection.x
+		cameraDirection.y = -cameraDirection.y
+		positionToSpawn = GetPositionWithTerrainOffset(self:GetPos(), cameraDirection, currentItemPreset.spawnDistanceAbovePlayer, currentItemPreset.zOffset)
+	else
+		positionToSpawn.z = positionToSpawn.z + currentItemPreset.zOffset
+	end
+
+	-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
+	local spawnParamUpdate = g_Vectors.temp_v3
+	if (currentItemPreset.spawnDistanceAbovePlayer and currentItemPreset.spawnDistanceAbovePlayer > 100) then
+		CopyVector(spawnParamUpdate, positionToSpawn)
+		CopyVector(positionToSpawn, GetPositionWithTerrainOffset(self:GetPos(), cameraDirection, 50, currentItemPreset.zOffset))
+	end
+
+
+	local spawnParam = currentItemPreset.properties
+	local params = {
+		class = currentItemPreset.class,
+		archetype = currentItemPreset.archetype,
+		position = positionToSpawn,
+		orientation = self:GetDirectionVector(1),
+		name = currentItemPreset.name.." ["..getNewIndexForSpawnedEntity().."]",
+		scale = self:GetScale(),
+		properties = spawnParam,
+		-- propertiesInstance = self.PropertiesInstance,
+	}
+	local entity = System.SpawnEntity(params)
+
+	-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
+	if (currentItemPreset.spawnDistanceAbovePlayer and currentItemPreset.spawnDistanceAbovePlayer >= 100) then
+		Script.SetTimer(150, function (ent) ent:SetPos(spawnParamUpdate) end, entity)
+	end
+
+	return entity
+end
+
+function Player:CanUseSpawnerTool()
+	local wep = self.inventory:GetCurrentItem();
+	return wep and (wep.class == "DebugGun" or wep.class == "SpawnGun")
 end
 
 function Player:SpawnerToolAction(action, isPressed, isHold)
 
-	local wep = self.inventory:GetCurrentItem();
-	if (not wep or wep.class ~= "DebugGun") then
+	if (not self:CanUseSpawnerTool() or not isPressed) then
 		return
 	end
 
@@ -114,45 +190,20 @@ function Player:SpawnerToolAction(action, isPressed, isHold)
 
 		local currentItem = getCurrentElement();
 
-		local rayfilter = ent_all;
-		local rayLimit = currentItem.maxDistanceOverride or DebugGunProperties.maxDistance;
+		local hit = self:MuzzleTrace(currentItem)
 
-		local direction = g_Vectors.temp_v1;
-		CopyVector(direction, System.GetViewCameraDir());
-		ScaleVectorInPlace(direction, rayLimit);
-
-		local position = g_Vectors.temp_v2;
-		self.actor:GetHeadPos(position);
-
-		local hits = Physics.RayWorldIntersection(position,direction,2,rayfilter,self.id,nil,g_HitTable);
-
-		local minDistanceToSpawn = currentItem.minDistanceOverride or DebugGunProperties.minDistance
-		if (hits == 0 or g_HitTable[1].dist < minDistanceToSpawn) then
+		if (not hit) then
 			HUD.HitIndicator();
 			return;
 		end
 
-		local pos = g_HitTable[1].pos
-		pos.z = pos.z + currentItem.zOffset
-
-		local spawnParam = currentItem.properties
-		local params = {
-			class = currentItem.class,
-			archetype = currentItem.archetype,
-			position = pos,
-			orientation = self:GetDirectionVector(1),
-			name = currentItem.name.." ["..getNewIndexForSpawnedEntity().."]",
-			scale = self:GetScale(),
-			properties = spawnParam,
-			-- propertiesInstance = self.PropertiesInstance,
-		}
-		local entity = System.SpawnEntity(params)
+		local entity = self:SpawnEntity(hit.position, currentItem)
 
 		if (entity) then
 			local newEntitiesGroup = {
 				["0"] = entity
 			}
-			self:EntityAdditionalActions(entity, currentItem, newEntitiesGroup)
+			self:EntityAdditionalActions(entity, currentItem, hit.position, newEntitiesGroup)
 
 			table.insert(DebugGunProperties.spawnedEntityPool, newEntitiesGroup)
 
