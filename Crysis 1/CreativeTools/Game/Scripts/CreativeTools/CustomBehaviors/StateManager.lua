@@ -1,4 +1,3 @@
-Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
 Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateMachine.lua");
 

@@ -1,7 +1,4 @@
-Script.ReloadScript("SCRIPTS/UI/UI.lua");
-Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
-Script.ReloadScript("Scripts/Utils/Math.lua");
-Script.ReloadScript("Scripts/CreativeTools/EntityHelpers.lua");
+Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 
 

@@ -35,16 +35,16 @@ function CopyTableWithMetadata(obj, seen)
 end
 
 function PrintTable(table)
-	local toPrint = {}
-	for key, value in pairs(table) do
-		table.insert(toPrint, key)
-		if count(toPrint) > 8 then
+	local printed = {}
+	for key, v in pairs(table) do
+		table.insert(printed, key)
+		if count(printed) > 8 then
 			local text = ""
-			for i, value in pairs(toPrint) do
-				text = text..value..", "
+			for i, val in pairs(printed) do
+				text = text..val..", "
 			end
 			HUD.DrawStatusText(text)
-			toPrint = {}
+			printed = {}
 		end
 	end
 end

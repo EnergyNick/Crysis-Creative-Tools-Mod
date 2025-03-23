@@ -1,5 +1,5 @@
 Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
-Script.ReloadScript("Scripts/CreativeTools/EntityHelpers.lua");
+Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/HumanFollowerBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineFollowerBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineLandingBehavior.lua");

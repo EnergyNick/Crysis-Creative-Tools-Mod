@@ -1,7 +1,4 @@
-Script.ReloadScript("SCRIPTS/UI/UI.lua");
-Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
-Script.ReloadScript("Scripts/Utils/Math.lua");
-Script.ReloadScript("Scripts/CreativeTools/EntityHelpers.lua");
+Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 
 -- https://www.cryengine.com/docs/static/engines/cryengine-5/categories/23756813/pages/23306485#introduction

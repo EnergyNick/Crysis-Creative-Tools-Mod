@@ -162,21 +162,26 @@ EntitySpawnList =
                 name = "US solder 3 - Rifle",
                 class = "Grunt",
                 archetype = "US.Grunt/Cover.US_Rifleman_5",
-                zOffset = 0.5,
+				behavior = "human_following"
+            },
+			{
+                name = "US solder 3 - Rifle with scope",
+				templateKey = "us-cover-rifleman-5b-scope",
 				behavior = "human_following"
             },
 			{
                 name = "US solder - Sniper",
-                class = "Grunt",
-                archetype = "US.Grunt/Sniper.US_Sniper",
-                zOffset = 0.5,
+				templateKey = "us-sniper-1",
+				behavior = "human_following"
+            },
+			{
+                name = "US solder - Sniper & LAW",
+				templateKey = "us-sniper-gauss-law",
 				behavior = "human_following"
             },
 			{
                 name = "US solder - Gauss",
-                class = "Grunt",
-                archetype = "US.Grunt/Sniper.US_Gauss",
-                zOffset = 0.5,
+				templateKey = "us-sniper-gauss",
 				behavior = "human_following"
             },
         }
@@ -324,53 +329,20 @@ EntitySpawnList =
 			{
 				name = "vtol-3",
 				class = "US_vtol",
-				archetype = nil,
-				zOffset = 50,
+				zOffset = 60,
 				behavior = "vehicle_landing_after_following",
 				maxDistanceOverride = 100,
-				spawnDistanceAbovePlayer = 99,
+				spawnDistanceAbovePlayer = 450,
+				playerAsCrewSeatIndex = 4,
 				crew =
 				{
-					{
-						name = "Driver",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Gunner",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
+					{ templateKey = "us-pilot-navy" 	   },
+					{ templateKey = "us-tank-driver-2" 	   },
+					{ templateKey = "us-cover-rifleman-5b" },
+					{ templateKey = "us-cover-rifleman-4b" },
+					{ templateKey = "us-sniper-1" 		   },
+					{ templateKey = "us-cover-rifleman-5b" },
+					{ templateKey = "us-cover-rifleman-3b" },
 				}
 			},
 			{
@@ -383,46 +355,13 @@ EntitySpawnList =
 				spawnDistanceAbovePlayer = 30,
 				crew =
 				{
-					{
-						name = "Driver",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Gunner",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
+					{ templateKey = "us-pilot-navy" 	   },
+					{ templateKey = "us-tank-driver-2" 	   },
+					{ templateKey = "us-cover-rifleman-5b" },
+					{ templateKey = "us-cover-rifleman-4b" },
+					{ templateKey = "us-sniper-1" 		   },
+					{ templateKey = "us-cover-rifleman-3b" },
+					{ templateKey = "us-cover-rifleman-5b" },
 				}
 			},
 		}

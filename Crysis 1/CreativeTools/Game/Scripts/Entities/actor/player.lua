@@ -491,9 +491,7 @@ end
 -- 	return 0;
 -- end;
 
-Script.ReloadScript("SCRIPTS/CreativeTools/SpawnGunLogic.lua");
-System.AddCCommand("creative_tools", "InvokeCreativeToolsCommand()", "Give items")
-System.AddCCommand("extend_power", "InvokeCreativeToolsCommand()", "Give items")
+Script.ReloadScript("SCRIPTS/CreativeTools/Entrypoint.lua");
 
 
 function Player:OnAction(action, activation, value)
@@ -516,11 +514,7 @@ function Player:OnAction(action, activation, value)
 		-- HUD.DrawStatusText("before")
 		-- local value = AI.IsPointInFlightRegion({x=1840, y=2180, z=310})
 		-- HUD.DrawStatusText("res = "..tostring(value))
-
-		if self:IsUsingSpawnToolNow() then
-			local spawnGun = self:GetOrInitSpawnTool()
-			spawnGun:OnAction(action)
-		end
+		self:OnActionCreativeTools(action)
 	end
 
 	if (action == "use" or action == " xi_use") then	
