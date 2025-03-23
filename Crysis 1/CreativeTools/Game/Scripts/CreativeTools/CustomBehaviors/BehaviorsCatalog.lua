@@ -6,28 +6,37 @@ Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/Machi
 
 BehaviorsCatalog = {
     ["human_following"] = function(entity, spawnPosition, player, spawnedCrew)
-        CreateAndRunHumanFollowerManager(entity, player)
+        local manager = CreateAndRunHumanFollowerManager(entity, player)
+        SafeInsertBehavior(player, manager)
     end,
     ["vehicle_following"] = function(entity, spawnPosition, player, spawnedCrew)
         if (IsFlyingVehicles(entity)) then
-            DisablePhysicsAntLaterEnabledWithUpPush(entity, 2000)
+            DisablePhysicsAndLaterEnabledWithUpPush(entity, 2000)
         end
 
-        CreateAndRunMachineFollowerManager(entity, player)
+        local manager = CreateAndRunMachineFollowerManager(entity, player)
+        SafeInsertBehavior(player, manager)
     end,
     ["vehicle_landing_after_following"] = function(entity, spawnPosition, player, spawnedCrew)
         local actionForVehicle = function(eventEntity)
-            TakeoffAirVehicle(eventEntity)
+            TakeoffAirVehicle(eventEntity, 40)
 
-            CreateAndRunMachineFollowerManager(eventEntity, player)
+            local machineManager = CreateAndRunMachineFollowerManager(eventEntity, player)
+            SafeInsertBehavior(player, machineManager)
+            SetGunnerIgnorant(eventEntity, 0)
 
             for i, crewEntity in pairs(spawnedCrew) do
-                CreateAndRunHumanFollowerManager(crewEntity, player)
+                -- Skip driver and gunner
+                if i > 2 then
+                    local manager = CreateAndRunHumanFollowerManager(crewEntity, player)
+                    SafeInsertBehavior(player, manager)
+                end
             end
         end
 
-        DisablePhysicsAntLaterEnabledWithUpPush(entity, 2000)
-        CreateAndRunMachineLandingManager(entity, spawnPosition, actionForVehicle)
+        DisablePhysicsAndLaterEnabledWithUpPush(entity, 2000)
+        local manager = CreateAndRunMachineLandingManager(entity, spawnPosition, actionForVehicle)
+        SafeInsertBehavior(player, manager)
     end,
 }
 
@@ -41,4 +50,12 @@ function RunBehaviorByName(behaviorName, entity, player, spawnPosition, spawnedC
             { x = 1, y = 0, z = 0 });
         return false
     end
+end
+
+function SafeInsertBehavior(player, behavior)
+    if not player.customBehaviors then
+        player.customBehaviors = {}
+    end
+
+    table.insert(player.customBehaviors, behavior)
 end

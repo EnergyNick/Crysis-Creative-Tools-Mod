@@ -4,9 +4,12 @@ Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/CreativeTools/EntityHelpers.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 
+-- https://www.cryengine.com/docs/static/engines/cryengine-5/categories/23756813/pages/23306485#introduction
 local behaviorOptions =
 {
 	distanceAroundToLandingPoint = 8,
+	distanceAroundToLandingPointToStopGoUp = 15,
+  distanceToLandPointToLowerSpeed = 100,
 
   terrainOffset = 50,
 
@@ -27,6 +30,9 @@ local behaviorSetup =
   },
 
   fsmCallbacks = {
+    onOnTheWay = function (self, event, from, to)
+      self.wayDirection = self.entity:GetDirectionVector(1)
+    end,
   },
 
   fsmStateActions =
@@ -36,7 +42,8 @@ local behaviorSetup =
       state.entity.vehicle:BlockAutomaticDoors(true);
       state.entity.vehicle:CloseAutomaticDoors();
 
-      AIBehaviour.HELIDEFAULT:heliRequest2ndGunnerStopShoot(state.entity);
+      -- AIBehaviour.HELIDEFAULT:heliRequest2ndGunnerStopShoot( state.entity );
+      SetGunnerIgnorant(state.entity, 1)
 
       local rangeBetweenTarget = GetLengthBetweenPositions(state.entity:GetPos(), state.target)
       if rangeBetweenTarget > behaviorOptions.distanceAroundToLandingPoint then
@@ -49,51 +56,81 @@ local behaviorSetup =
 
     OnTheWay = function (state)
       local rangeBetweenTarget = GetLengthBetweenPositionsOnXY(state.entity:GetPos(), state.target)
+      local entitySpeed = state.entity:GetSpeed()
       local timeOfOperation = behaviorOptions.timeoutToRetryGoToOrderWhenNear
-      if rangeBetweenTarget > 100 then
-        timeOfOperation = behaviorOptions.timeoutToRetryGoToOrderWhenFar
+
+      if (rangeBetweenTarget > behaviorOptions.distanceToLandPointToLowerSpeed) then
+        local orderPointOfSprint = GetPointNearTargetPosition(state.entity:GetPos(), state.target, behaviorOptions.distanceToLandPointToLowerSpeed)
+        InPlaceVectorApplyTerrainOffset(orderPointOfSprint, behaviorOptions.terrainOffset)
+
+        if entitySpeed < 5 and IsEntityXYDirectionRotatedMoreThan(state.entity, orderPointOfSprint, 2) then
+          SetNavigationToRotateAndGetIsRotated(state.entity, orderPointOfSprint, state.wayDirection)
+          HUD.DrawStatusText("Rotate ordered")
+          return 500
+        end
+
+        state.entity.vehicle:SetMovementMode(1);
+        SetNavigationToFastFlyAndGetIsCrossed(state.entity, orderPointOfSprint, state.wayDirection)
+        HUD.DrawStatusText("Sprint ordered")
+        return 500
       end
 
 		  local curTime = _time;
       if (curTime - state.timePointOfOperation) > timeOfOperation then
-        if rangeBetweenTarget < behaviorOptions.distanceAroundToLandingPoint and state.entity:GetSpeed() < 5.0 then
+
+        SetGunnerIgnorant(state.entity, 0)
+        state.entity.vehicle:SetMovementMode(0);
+
+        if rangeBetweenTarget < behaviorOptions.distanceAroundToLandingPoint and entitySpeed < 5.0 then
           state:InRangeToLand()
           return 100
         end
 
-        if (rangeBetweenTarget < 100.0) then
-          AIBehaviour.HELIDEFAULT:heliRequest2ndGunnerShoot( state.entity );
-        end
-
-        local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), state.target, behaviorOptions.distanceAroundToLandingPoint)
-        InPlaceVectorApplyTerrainOffset(orderPoint, behaviorOptions.terrainOffset)
-
-        OrderEntityGoToPosition(state.entity, orderPoint)
-
-        AI.SetRefPointPosition(state.entity.id, orderPoint);
-
-        AI.CreateGoalPipe("heliRunToTheDestination");
-        AI.PushGoal("heliRunToTheDestination","continuous",0,0);
-        if (rangeBetweenTarget > 50.0) then
-          AI.PushGoal("heliRunToTheDestination","run",0,1);
+        if entitySpeed > 20 then
+          local negateDirection = {}
+          CopyVector(negateDirection, state.entity:GetDirectionVector(1))
+          ScaleVectorInPlace(negateDirection, -0,5)
+          negateDirection.z = 0
+          AI.SetForcedNavigation(state.entity.id, negateDirection)
+          HUD.DrawStatusText("Slowing ordered")
         else
-          AI.PushGoal("heliRunToTheDestination","run",0,0);
+          local orderPoint = GetPositionWithTerrainOffset(state.target, behaviorOptions.terrainOffset)
+          if rangeBetweenTarget < behaviorOptions.distanceAroundToLandingPointToStopGoUp then
+            orderPoint.z = state.entity:GetPos().z
+          end
+          OrderEntityGoToPositionWithSpeed(state.entity, orderPoint, 3)
+          HUD.DrawStatusText("GoTo ordered")
         end
-        AI.PushGoal("heliRunToTheDestination","locate",0,"refpoint");
-        AI.PushGoal("heliRunToTheDestination","approach",1,3.0,AILASTOPRES_USE,10);
-        state.entity:InsertSubpipe(0,"heliRunToTheDestination");
 
-        HUD.DrawStatusText("GoTo ordered")
         state.timePointOfOperation = curTime
       end
 
     end,
 
     Landing = function (state)
+
+      -- local targetPos = state.entity:GetPos();
+      -- local targetDir = g_Vectors.temp_v1;
+      -- targetDir.x = 0;
+      -- targetDir.y = 0;
+      -- targetDir.z = -10;
+
+      -- local rayFilter = ent_terrain+ent_static+ent_rigid+ent_sleeping_rigid
+      -- local hits = Physics.RayWorldIntersection(targetPos, targetDir, 2, rayFilter, state.entity.id, nil, g_HitTable);
+      -- if(hits > 0) then
+      --   local firstHit = g_HitTable[1];
+      --   if(firstHit.normal.z < 3) then
+      --     state:Landed()
+      --     return 3000
+      --   end
+      -- end
+
+      SetGunnerIgnorant(state.entity, 1)
       local myPos = state.entity:GetPos()
 
       local distance = System.GetTerrainElevation(myPos);
       distance = myPos.z - distance;
+      -- HUD.DrawStatusText("Distance to terrain = "..tostring(distance))
       if(distance < 8) then
         state:Landed()
         return 2000
@@ -126,9 +163,9 @@ local behaviorSetup =
         state.entity.vehicle:DisableEngine(1);
 
         local previous = nil
-        for i = #toExit, 1, -1 do
+        for i = count(toExit), 1, -1 do
             local member = toExit[i]
-            StartExitByChainAndGoToRandomPointAsync(toExit[i], i, previous)
+            StartExitByChainAndGoToRandomPointAsync(member, i, previous)
             previous = member
         end
 
@@ -147,6 +184,10 @@ local behaviorSetup =
   onCompleteAction = function(state)
     if (state.entity:IsDead()) then
       KillAllPassengersInVehicle(state.entity)
+
+      if not state:is("Finished") then
+		    HUD.DisplayBigOverlayFlashMessage("Reinforcements ship was destroyed, before reaching landing point", 2, 400, 375, { x=0.96, y=0.63, z=0 });
+      end
     end
   end
 }
@@ -160,4 +201,6 @@ function CreateAndRunMachineLandingManager(entity, target, afterLandMachineActio
 	HUD.AddEntityToRadar(entity.id);
 
   RunStateManagerAsync(fsm)
+
+  return fsm
 end

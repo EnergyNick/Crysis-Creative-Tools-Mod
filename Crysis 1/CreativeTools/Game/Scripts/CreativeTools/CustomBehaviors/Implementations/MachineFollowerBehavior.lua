@@ -7,6 +7,8 @@ Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 
 local behaviorOptions = 
 {
+  flyingVehicleZOffset = 50,
+
   rangeBetweenTargetToFollowOnFight = 40,
   rangeBetweenTargetToFollowOnIdle = 20,
 
@@ -89,10 +91,12 @@ local behaviorSetup =
       if (curTime - state.timePointOfOperation) > behaviorOptions.timeoutToRetryFollowing then
         local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), entityToFollow:GetPos(), behaviorOptions.distanceAroundToFollowingPoint)
 
+        -- AI.CanMoveStraightToPoint(state.entity.id, orderPoint)
         if IsFlyingVehicles(state.entity) then
-          InPlaceVectorApplyTerrainOffset(orderPoint, 50)
+          InPlaceVectorApplyTerrainOffset(orderPoint, behaviorOptions.flyingVehicleZOffset)
         end
         OrderEntityGoToPosition(state.entity, orderPoint)
+        -- HUD.DrawStatusText("Follow order")
         state.timePointOfOperation = curTime
       end
 
@@ -113,4 +117,6 @@ function CreateAndRunMachineFollowerManager(entity, target)
 	HUD.AddEntityToRadar(entity.id);
 
   RunStateManagerAsync(fsm)
+
+  return fsm
 end

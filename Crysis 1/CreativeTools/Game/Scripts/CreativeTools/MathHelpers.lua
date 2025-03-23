@@ -1,0 +1,104 @@
+Script.ReloadScript("Scripts/Utils/Math.lua");
+
+function VectorToString(vector)
+	return "x="..tostring(vector.x).." y="..tostring(vector.y).." z="..tostring(vector.z)
+end
+
+function GetLengthBetweenPositions(first, second)
+	local diff = g_Vectors.temp_v1;
+	CopyVector( diff, first );
+	SubVectors( diff, diff, second);
+	return LengthVector( diff );
+end
+
+function GetLengthBetweenPositionsOnXY(first, second)
+	local diff = g_Vectors.temp_v1;
+	CopyVector( diff, first );
+	SubVectors( diff, diff, second);
+	diff.z = 0
+	return LengthVector( diff );
+end
+
+function GetLengthBetweenEntities(startEntity, endEntity)
+	return GetLengthBetweenPositions(startEntity:GetPos(), endEntity:GetPos());
+end
+
+function SubVectorsNormalized(first, second)
+	local result = {};
+	SubVectors(result, first, second);
+	NormalizeVector(result)
+	return result;
+end
+
+function SubVectorsNormalizedOnXY(first, second)
+	local result = {};
+	SubVectors(result, first, second);
+	result.z = 0
+	NormalizeVector(result)
+	return result;
+end
+
+function GetPointNearTargetPosition(sourcePosition, targetPosition, distanceNearTarget)
+	local direction = g_Vectors.temp_v1;
+	local result = {};
+
+	SubVectors(direction, targetPosition, sourcePosition)
+	local length = LengthVector(direction)
+
+	NormalizeVector(direction)
+	ScaleVectorInPlace(direction, math.max(length - distanceNearTarget, distanceNearTarget));
+
+	FastSumVectors(result, sourcePosition, direction)
+	return result;
+end
+
+function GetFarthestValidPositionOnDistanceWithTerrainOffset(sourceEntity, direction, distance, zOffset)
+	local sourceWithZOffset = {}
+	CopyVector(sourceWithZOffset, sourceEntity:GetPos())
+	InPlaceVectorApplyTerrainOffset(sourceWithZOffset, zOffset)
+
+	local iterationStep = distance * 0.1
+	local currentDistance = distance
+	while currentDistance > 30 do
+		local positionToSpawn = GetPositionOnDistanceWithTerrainOffset(sourceEntity:GetPos(), direction, currentDistance, zOffset)
+
+		local isInFlyPosition = AI.IsPointInFlightRegion(positionToSpawn);
+		if isInFlyPosition then
+			return positionToSpawn
+		end
+
+		currentDistance = currentDistance - iterationStep
+	end
+
+	return nil
+end
+
+function GetPositionOnDistanceWithTerrainOffset(sourcePosition, direction, distance, zOffset)
+	local dirVectorScaled = g_Vectors.temp_v1
+	CopyVector(dirVectorScaled, direction)
+	ScaleVectorInPlace(dirVectorScaled, distance);
+
+	local result = {};
+	FastSumVectors(result, sourcePosition, dirVectorScaled)
+	InPlaceVectorApplyTerrainOffset(result, zOffset)
+	return result;
+end
+
+function GetPositionWithTerrainOffset(sourcePosition, zOffset)
+	local result = {};
+	CopyVector(result, sourcePosition)
+	InPlaceVectorApplyTerrainOffset(result, zOffset)
+	return result;
+end
+
+function InPlaceVectorApplyTerrainOffset(position, zOffset)
+	position.z = System.GetTerrainElevation(position) + zOffset
+end
+
+function IsEntityXYDirectionRotatedMoreThan(entity, targetDirection, angleInDegree)
+	local vEntityDir = g_Vectors.temp_v3
+	CopyVector(vEntityDir, entity:GetDirectionVector(1));
+	vEntityDir.z = 0;
+	NormalizeVector(vEntityDir);
+	return dotproduct3d(vEntityDir, targetDirection) <= math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
+end

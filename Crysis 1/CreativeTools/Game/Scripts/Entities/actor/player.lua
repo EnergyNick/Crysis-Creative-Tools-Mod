@@ -321,7 +321,6 @@ function Player.Server:OnUpdate(frameTime)
 	
 end
 
-
 function Player:OnInit()
 
 --	AI.RegisterWithAI(self.id, AIOBJECT_PLAYER, self.Properties);
@@ -481,7 +480,21 @@ function Player:SetOnUseData(entityId, slot)
 	self.OnUseSlot = slot
 end
 
-Script.ReloadScript("SCRIPTS/CreativeTools/SpawnerTools.lua");
+-- Script.ReloadScript("SCRIPTS/CreativeTools/SpawnerTools.lua");
+
+-- dostring("script")
+-- 			local f=loadstring(sCommand);
+-- if (f~=nil) then
+-- 	f();
+-- 	return 1;
+-- else
+-- 	return 0;
+-- end;
+
+Script.ReloadScript("SCRIPTS/CreativeTools/SpawnGunLogic.lua");
+System.AddCCommand("creative_tools", "InvokeCreativeToolsCommand()", "Give items")
+System.AddCCommand("extend_power", "InvokeCreativeToolsCommand()", "Give items")
+
 
 function Player:OnAction(action, activation, value)
 	-- gamerules needs to get all player actions all times
@@ -491,10 +504,26 @@ function Player:OnAction(action, activation, value)
 		end
 	end
 
-	-- Library logic to initialize spawn tool behavior
-	self:SpawnerToolAction(action, activation == "press", activation == "hold")
+	-- if g_gameRules then
+	-- 	HUD.DrawStatusText("Gamerule exists")
+	-- 	-- g_gameRules.game:AddMinimapEntity(vehicle.id, 1, 0);
+	-- end
 
-	if (action == "use" or action == "xi_use") then	
+	-- HUD.DrawStatusText("Action ["..action.."] {"..activation.."} ("..tostring(value)..")")
+
+	-- Library logic to initialize spawn tool behavior
+	if activation == "press" then
+		-- HUD.DrawStatusText("before")
+		-- local value = AI.IsPointInFlightRegion({x=1840, y=2180, z=310})
+		-- HUD.DrawStatusText("res = "..tostring(value))
+
+		if self:IsUsingSpawnToolNow() then
+			local spawnGun = self:GetOrInitSpawnTool()
+			spawnGun:OnAction(action)
+		end
+	end
+
+	if (action == "use" or action == " xi_use") then	
 		self:UseEntity( self.OnUseEntityId, self.OnUseSlot, activation == "press");
 	end
 end

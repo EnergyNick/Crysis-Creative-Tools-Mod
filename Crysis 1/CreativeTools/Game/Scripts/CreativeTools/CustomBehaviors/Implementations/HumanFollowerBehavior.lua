@@ -111,12 +111,21 @@ local behaviorSetup =
         return 100
       end
 
+      -- local stance = AI.GetStance(state.entity.id);
+      -- if stance ~= 1 then
+      --   AI.SetStance(entity.id,stance);
+      -- end
+
+
 		  local curTime = _time;
       if (curTime - state.timePointOfOperation) > behaviorOptions.timeoutToRetryFollowing then
         local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), state.target:GetPos(), behaviorOptions.distanceAroundToFollowingPoint)
+        -- if (not AI.CanMoveStraightToPoint(state.entity.id, orderPoint)) then
+        --   HUD.DrawStatusText("Can't move to that point directly")
+        -- end
 
+        OrderEntitySpeedOfAction(state.entity, 3)
         OrderEntityGoToPosition(state.entity, orderPoint)
-        OrderEntitySpeedOfAction(state.entity, 2)
         state.timePointOfOperation = curTime
       end
 
@@ -161,6 +170,8 @@ local behaviorSetup =
         end
 
         local passengerId = seat:GetPassengerId()
+        -- HUD.DrawStatusText("Try to seat "..tostring(state.entity.id)..(passengerId and (" (seat pass="..tostring(passengerId)..") ") or ""))
+
         if passengerId and passengerId ~= state.entity.id then
           state.requestedSeatIndex = nil
           return 300
@@ -212,4 +223,6 @@ function CreateAndRunHumanFollowerManager(entity, target)
 	HUD.AddEntityToRadar(entity.id);
 
   RunStateManagerAsync(fsm)
+
+  return fsm
 end
