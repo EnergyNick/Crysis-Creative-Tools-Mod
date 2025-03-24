@@ -42,9 +42,6 @@ function TargetObstacleCheck(entity, targetPoint)
 	return true;
 end
 
-
-
-
 function GetNearestEnemiesEntities(entity, range, aiObjectType)
 	local objects = {};
 	local numObjects = AI.GetNearestEntitiesOfType(entity, aiObjectType, range, objects );

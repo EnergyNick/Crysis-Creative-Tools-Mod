@@ -83,16 +83,47 @@ EntityPresetTemplates =
         archetype = "US.Grunt/Cover.US_Rifleman_5",
     },
     {
+        key = "us-cover-rifleman-5b-scope",
+        description = "US solder with Rifle, variant 5",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_5b",
+        weaponAttachments =
+        {
+            { weapon = "SCAR", attachment = "AssaultScope" },
+            { weapon = "SCAR", attachment = "LAMRifle" },
+            -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
+        },
+    },
+    {
         key = "us-sniper-1",
         description = "US solder with Sniper",
         class = "Grunt",
         archetype = "US.Grunt/Sniper.US_Sniper",
+        entity_properties =
+        {
+            -- equip_EquipmentPack="US_Gauss_LAW"
+            equip_EquipmentPack="US_Sniper"
+        }
     },
     {
         key = "us-sniper-gauss",
         description = "US solder with Gauss",
         class = "Grunt",
         archetype = "US.Grunt/Sniper.US_Gauss",
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Gauss_SS"
+        }
+    },
+    {
+        key = "us-sniper-gauss-law",
+        description = "US solder with Gauss and LAW",
+        class = "Grunt",
+        archetype = "US.Grunt/Sniper.US_Gauss",
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Gauss_LAW"
+        }
     },
     {
         key = "us-pilot-navy",

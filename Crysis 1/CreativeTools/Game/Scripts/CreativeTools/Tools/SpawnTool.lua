@@ -2,6 +2,7 @@ Script.ReloadScript("SCRIPTS/CreativeTools/Tools/ToolsCore.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/Utils/TableManagementUtils.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/LIST_SpawnTool.lua");
 
+local toolFieldName = 'spawnTool'
 
 local ToolActions = {
 	["attack1"] = function (self)
@@ -124,10 +125,14 @@ function Player:IsUsingSpawnToolNow()
 	return item and (item.class == "DebugGun" or item.class == "SpawnTool")
 end
 
+function Player:GetSpawnTool()
+	return self[toolFieldName]
+end
+
 function Player:GetOrInitSpawnTool()
-	if not self.spawnTool then
-		local tool = CreateUserTool(self, EntitySpawnList, ToolActions)
-		self.spawnTool = tool
+	if not self[toolFieldName] then
+		local tool = CreateUserTool(toolFieldName, EntitySpawnList, ToolActions, self)
+		self[toolFieldName] = tool
 	end
-	return self.spawnTool
+	return self[toolFieldName]
 end

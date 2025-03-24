@@ -156,6 +156,10 @@ end
 ---@return boolean Result Is currently crossed target point
 function SetNavigationToFastFlyAndGetIsCrossed(entity, positionVector, currentToTargetDirection, minimalZOffset)
 
+	if not currentToTargetDirection then
+		currentToTargetDirection = entity:GetDirectionVector(1)
+	end
+
 	local vRotateDir = SubVectorsNormalizedOnXY(positionVector, entity:GetPos())
 	local scalarBetweenDirections = dotproduct3d(vRotateDir, currentToTargetDirection)
 	local isCrossedSuccessfully = scalarBetweenDirections < 0

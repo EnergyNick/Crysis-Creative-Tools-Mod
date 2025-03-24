@@ -11,6 +11,8 @@ local GlobalProperties = {
 }
 
 UserTool = {
+	toolName = "Default",
+
 	spawnedEntityNamesPool = {},
 	creationIndexSequence = 0,
 
@@ -36,6 +38,9 @@ function ApplyEntityCustomizations(entity, spawnInfo)
 end
 
 function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEntitiesGroup)
+
+	entity.spawnedPosition = hitPosition
+
 	if spawnInfo.weaponAttachments then
 		for i, item in pairs(spawnInfo.weaponAttachments) do
 			if (item.weapon and item.attachment) then
@@ -50,8 +55,8 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 		EnterVehicle(self.player, entity, spawnInfo.playerAsCrewSeatIndex, true)
 	end
 
-	local spawnedCrew = {}
 	if spawnInfo.crew then
+		local crewNames = {}
 		for i, currentItem in pairs(spawnInfo.crew) do
 			local position = entity:GetPos();
 			position.x = position.x + 5 * i
@@ -66,14 +71,17 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 				ApplyEntityCustomizations(subEntity, currentItem)
 				EnterVehicle(subEntity, entity, i, true)
 
-				table.insert(spawnedCrew, subEntity)
-				table.insert(newEntitiesGroup, subEntity:GetName())
+				local entityName = subEntity:GetName()
+				table.insert(crewNames, entityName)
+				table.insert(newEntitiesGroup, entityName)
 			end
 		end
+
+		entity.spawnedCrewNames = crewNames
 	end
 
 	if (spawnInfo.behavior) then
-		RunBehaviorByName(spawnInfo.behavior, entity, self.player, hitPosition, spawnedCrew)
+		RunBehaviorByName(spawnInfo.behavior, entity, self.player)
 	end
 end
 
@@ -124,15 +132,17 @@ function UserTool:SpawnEntity(spawnPoint, currentItemPreset, orientation)
 	return System.SpawnEntity(params)
 end
 
-function UserTool:SpawnEntityWithPositionImprovements(positionToSpawn, currentItemPreset)
+function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPreset)
 	local cameraDirection = System.GetViewCameraDir()
 
+	local positionToSpawn
 	local zOffset = currentItemPreset.zOffset or GlobalProperties.defaultOffsetZ
 	if (currentItemPreset.spawnDistanceAbovePlayer) then
 		cameraDirection.x = -cameraDirection.x
 		cameraDirection.y = -cameraDirection.y
 		positionToSpawn = GetFarthestValidPositionOnDistanceWithTerrainOffset(self.player, cameraDirection, currentItemPreset.spawnDistanceAbovePlayer, zOffset)
 	else
+		CopyVector(positionToSpawn, hitPoint)
 		positionToSpawn.z = positionToSpawn.z + zOffset
 	end
 
@@ -156,6 +166,12 @@ function UserTool:SpawnEntityWithPositionImprovements(positionToSpawn, currentIt
 		Script.SetTimer(150, function (ent) ent:SetPos(afterSpawnUpdatePos) end, entity)
 	end
 
+	entity.spawnInfo =
+	{
+		hitPoint = hitPoint,
+		point = entity:GetPos()
+	}
+
 	return entity
 end
 
@@ -167,16 +183,40 @@ function UserTool:OnAction(action)
 end
 
 function UserTool:OnSave(save)
-	save.spawnTool = {
+
+	local entityInfos = {}
+	for i, name in pairs(self.spawnedEntityNamesPool) do
+		local obj = System.GetEntityByName(name)
+		if obj then
+			local entitySave = {}
+			if obj.spawnInfo then
+				entitySave.spawnInfo = obj.spawnInfo
+			end
+
+			if obj.spawnedCrewNames then
+				local res = {}
+				for j, crewName in pairs(obj.spawnedCrewNames) do
+					table.insert(res, crewName)
+				end
+				entitySave.crewNames = res
+			end
+
+			entityInfos[name] = entitySave
+		end
+	end
+
+	save[self.toolName] =
+	{
 		creationIndexSequence = self.creationIndexSequence,
 		currentCategoryIndex = self.currentCategoryIndex,
 		currentElementIndex = self.currentElementIndex,
-		spawnedEntityNamesPool = self.spawnedEntityNamesPool
+		spawnedEntityNamesPool = self.spawnedEntityNamesPool,
+		spawnedEntityAdditionalInfos = entityInfos
 	}
 end
 
 function UserTool:OnLoad(saved)
-	local fromSave = saved.spawnTool
+	local fromSave = saved[self.toolName]
 
 	if fromSave then
 		self.creationIndexSequence = fromSave.creationIndexSequence
@@ -184,10 +224,26 @@ function UserTool:OnLoad(saved)
 		self.currentElementIndex = fromSave.currentElementIndex
 		self.spawnedEntityNamesPool = {}
 
-		for i, value in pairs(fromSave.spawnedEntityNamesPool) do
-			local obj = System.GetEntityByName(value)
+		for i, name in pairs(fromSave.spawnedEntityNamesPool) do
+			local obj = System.GetEntityByName(name)
 			if obj then
-				table.insert(self.spawnedEntityNamesPool, value)
+				table.insert(self.spawnedEntityNamesPool, name)
+
+				if fromSave.spawnedEntityAdditionalInfos and fromSave.spawnedEntityAdditionalInfos[name] then
+					local infos = fromSave.spawnedEntityAdditionalInfos[name]
+
+					if infos.spawnInfo then
+						obj.spawnInfo = infos.spawnInfo
+					end
+
+					if infos.crewNames then
+						local res = {}
+						for j, crewName in pairs(infos.crewNames) do
+							table.insert(res, crewName)
+						end
+						obj.spawnedCrewNames = res
+					end
+				end
 			end
 		end
 
@@ -214,8 +270,9 @@ local function getEntitiesPresets(spawnList)
 	return presetsCopy
 end
 
-function CreateUserTool(player, spawnList, actionList)
+function CreateUserTool(toolName, spawnList, actionList, player)
 	local obj = CopyTableWithMetadata(UserTool, nil)
+	obj.toolName = toolName
 	obj.table = getEntitiesPresets(spawnList)
 	obj.player = player
 	obj.actions = actionList

@@ -2,18 +2,36 @@ Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateMachine.lua");
 
 
-function CreateStateManagerBasedOnPreset(preset, entity)
+function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
+    local entityObj = nil
+    if entity then
+        entityObj = entity
+    elseif managerSave then
+        entityObj = System.GetEntityByName(managerSave.entityName)
+    end
+
+    if not entityObj then
+        HUD.DisplayBigOverlayFlashMessage("Error: invalid behavior initialization, can't found entity, skipping", 
+        4, 400, 275,
+        { x = 1, y = 0, z = 0 });
+
+        return nil
+    end
+
     local machineProvider = GetFiniteStateMachine()
     local fsm = machineProvider.create({
-        initial = preset.initialState,
+        initial = (managerSave and managerSave.initialState) or preset.initialState,
         events = preset.fsmTransitionEvents,
         callbacks = preset.fsmCallbacks
     })
 
-    fsm.entity = entity
+    fsm.type = typeKey
+    fsm.entity = entityObj
+
     fsm.Actions = preset.fsmStateActions
 
     fsm.timePointOfOperation = 0
+    fsm.onceOperationExecuted = (managerSave and managerSave.onceOperationExecuted) or false
     fsm.onstatechange = function (self, event, from, to)
         self.timePointOfOperation = 0
         self.onceOperationExecuted = false
@@ -21,6 +39,8 @@ function CreateStateManagerBasedOnPreset(preset, entity)
         if (preset.defaultOnStateChange) then
             preset.defaultOnStateChange(self, event, from, to)
         end
+
+        HUD.DrawStatusText("State changed from "..from.." to "..to.." ["..self.entity:GetName().."]")
     end
 
     fsm.enableBehavior = true
@@ -29,6 +49,22 @@ function CreateStateManagerBasedOnPreset(preset, entity)
         if (preset.onCompleteAction) then
             preset.onCompleteAction(self)
         end
+    end
+
+    fsm.GetSave = function (self)
+        local save = nil
+        if self.enableBehavior then
+            save = {}
+            save.type = self.type
+            save.entityName = self.entity:GetName()
+            save.onceOperationExecuted = self.onceOperationExecuted
+
+            if (preset.onSaveAction) then
+                preset.onSaveAction(self, save)
+            end
+        end
+
+        return save
     end
 
     return fsm

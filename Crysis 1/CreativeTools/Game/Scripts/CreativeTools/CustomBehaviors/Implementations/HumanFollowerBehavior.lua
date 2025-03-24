@@ -10,6 +10,7 @@ local behaviorOptions =
 
 	distanceAroundToFollowingPoint = 5,
   distanceToRunOnFollowing = 15,
+  distanceAroundToFindEnemies = 30,
 
   timeoutToRetryFollowing = 10,
   timeoutToRetryEntering = 10,
@@ -78,14 +79,20 @@ local behaviorSetup =
           return 4000
         end
 
-        local typeOfAction;
-        if random(1, 3) == 1 then
-          typeOfAction = "patrol_random_walk"
+        local randResult = random(1, 3)
+        if randResult == 1 then
+			    state.entity:SelectPipe(0, "patrol_random_walk");
+        elseif randResult == 2 then
+          state.entity:SelectPipe(0, "random_look_around");
         else
-          typeOfAction = "random_look_around"
+          local targets = GetNearestEnemiesEntities(state.entity, behaviorOptions.distanceAroundToFindEnemies, AIOBJECT_PUPPET)
+          local enemyChoose = random(1, count(targets))
+
+          OrderEntitySpeedOfAction(state.entity, 3)
+          OrderEntityGoToPosition(state.entity, targets[enemyChoose]:GetPos())
+          HUD.DrawStatusText("Found target, go to that")
         end
 
-			  state.entity:SelectPipe(0, typeOfAction);
         state.timePointOfOperation = curTime
       end
     end,
@@ -208,16 +215,34 @@ local behaviorSetup =
         return
       end
     end,
-  }
+  },
+
+  onSaveAction = function (self, save)
+    save.targetName = self.target:GetName()
+  end
 }
 
 
-function CreateAndRunHumanFollowerManager(entity, target)
-  local fsm = CreateStateManagerBasedOnPreset(behaviorSetup, entity)
+function CreateAndRunHumanFollowerManager(typeKey, entity, target)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, entity)
   fsm.target = target
   fsm.vehicle = nil
 
 	HUD.AddEntityToRadar(entity.id);
+
+  RunStateManagerAsync(fsm)
+
+  return fsm
+end
+
+function LoadAndRunHumanFollowerManager(typeKey, behaviorSave)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, nil, behaviorSave)
+  if not fsm then
+    return nil
+  end
+
+  fsm.target = System.GetEntityByName(behaviorSave.targetName)
+  fsm.vehicle = fsm.entity.AI.theVehicle
 
   RunStateManagerAsync(fsm)
 

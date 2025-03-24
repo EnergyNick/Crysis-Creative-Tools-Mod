@@ -2,6 +2,7 @@ Script.ReloadScript("SCRIPTS/CreativeTools/Tools/ToolsCore.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/Utils/TableManagementUtils.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/LIST_ReinforcementsTool.lua");
 
+local toolFieldName = 'reinforcementsTool'
 
 local ToolActions = {
 	["attack1"] = function (self)
@@ -115,6 +116,8 @@ local ToolActions = {
 	end
 }
 
+-- ToolActions['nextitem'] = ToolActions['previtem']
+
 -- 	-- "voice_chat_talk"
 -- 	-- "lights"
 -- 	-- "hud_openchat"
@@ -130,11 +133,15 @@ function Player:IsUsingReinforcementsToolNow()
 	return item and item.class == "ReinforcementsTool"
 end
 
+function Player:GetReinforcementsTool()
+	return self[toolFieldName]
+end
+
 function Player:GetOrInitReinforcementsTool()
-	if not self.reinforcementsTool then
-		local tool = CreateUserTool(self, ReinforcementSpawnList, ToolActions)
-		self.reinforcementsTool = tool
+	if not self[toolFieldName] then
+		local tool = CreateUserTool(toolFieldName, ReinforcementSpawnList, ToolActions, self)
+		self[toolFieldName] = tool
 	end
-	return self.reinforcementsTool
+	return self[toolFieldName]
 end
 

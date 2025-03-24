@@ -665,6 +665,8 @@ end
 function Player:OnSave(save)
 	BasicActor.OnSave(self, save);
 
+	self:OnSaveCreativeTools(save)
+
 --	local savedTable =self.AI_WeaponAccessoryTable;
 --	if(savedTable) then 
 --		save.AI_WeaponAccessoryTable = {};
@@ -678,6 +680,9 @@ end
 
 function Player:OnLoad(saved)
 	BasicActor.OnLoad(self, saved);
+
+	self:OnLoadCreativeTools(saved)
+
 --	HUD:Spawn(self);
 
 --	self.AI.WeaponAccessoryTable = {};

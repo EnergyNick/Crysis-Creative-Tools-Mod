@@ -92,7 +92,8 @@ function GetPositionWithTerrainOffset(sourcePosition, zOffset)
 end
 
 function InPlaceVectorApplyTerrainOffset(position, zOffset)
-	position.z = System.GetTerrainElevation(position) + zOffset
+	-- math.max used for fix, when elevation in 0 coordinates
+	position.z = math.max(System.GetTerrainElevation(position) + zOffset, position.z)
 end
 
 function IsEntityXYDirectionRotatedMoreThan(entity, targetDirection, angleInDegree)

@@ -5,8 +5,8 @@ Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 local behaviorOptions =
 {
 	distanceAroundToLandingPoint = 8,
-	distanceAroundToLandingPointToStopGoUp = 15,
-  distanceToLandPointToLowerSpeed = 100,
+	distanceAroundToLandingPointToStopGoUp = 40,
+  distanceToLandPointToLowerSpeed = 140,
 
   terrainOffset = 50,
 
@@ -17,10 +17,10 @@ local behaviorOptions =
 
 local behaviorSetup =
 {
-  initialState = 'Normal',
+  initialState = 'Start',
 
   fsmTransitionEvents = {
-    { name = 'WayStart',          from = 'Normal',                 to = 'OnTheWay'  },
+    { name = 'WayStart',          from = 'Start',                  to = 'OnTheWay'  },
     { name = 'InRangeToLand',     from = 'OnTheWay',               to = 'Landing'   },
     { name = 'Landed',            from = 'Landing',                to = 'Unloading' },
     { name = 'ReinforcementOut',  from = 'Unloading',              to = 'Finished'  },
@@ -34,7 +34,9 @@ local behaviorSetup =
 
   fsmStateActions =
   {
-    Normal = function(state)
+    Start = function(state)
+      DisablePhysicsAndLaterEnabledWithUpPush(state.entity, 2000)
+
       state.entity.vehicle:DisableEngine(0);
       state.entity.vehicle:BlockAutomaticDoors(true);
       state.entity.vehicle:CloseAutomaticDoors();
@@ -42,22 +44,17 @@ local behaviorSetup =
       -- AIBehaviour.HELIDEFAULT:heliRequest2ndGunnerStopShoot( state.entity );
       SetGunnerIgnorant(state.entity, 1)
 
-      local rangeBetweenTarget = GetLengthBetweenPositions(state.entity:GetPos(), state.target)
-      if rangeBetweenTarget > behaviorOptions.distanceAroundToLandingPoint then
-        state:WayStart()
-        return 500
-      end
-
-      state:InRangeToLand()
+      state:WayStart()
+      return 500
     end,
 
     OnTheWay = function (state)
-      local rangeBetweenTarget = GetLengthBetweenPositionsOnXY(state.entity:GetPos(), state.target)
+      local rangeBetweenTarget = GetLengthBetweenPositionsOnXY(state.entity:GetPos(), state.targetPosition)
       local entitySpeed = state.entity:GetSpeed()
       local timeOfOperation = behaviorOptions.timeoutToRetryGoToOrderWhenNear
 
       if (rangeBetweenTarget > behaviorOptions.distanceToLandPointToLowerSpeed) then
-        local orderPointOfSprint = GetPointNearTargetPosition(state.entity:GetPos(), state.target, behaviorOptions.distanceToLandPointToLowerSpeed)
+        local orderPointOfSprint = GetPointNearTargetPosition(state.entity:GetPos(), state.targetPosition, behaviorOptions.distanceToLandPointToLowerSpeed)
         InPlaceVectorApplyTerrainOffset(orderPointOfSprint, behaviorOptions.terrainOffset)
 
         if entitySpeed < 5 and IsEntityXYDirectionRotatedMoreThan(state.entity, orderPointOfSprint, 2) then
@@ -91,7 +88,7 @@ local behaviorSetup =
           AI.SetForcedNavigation(state.entity.id, negateDirection)
           HUD.DrawStatusText("Slowing ordered")
         else
-          local orderPoint = GetPositionWithTerrainOffset(state.target, behaviorOptions.terrainOffset)
+          local orderPoint = GetPositionWithTerrainOffset(state.targetPosition, behaviorOptions.terrainOffset)
           if rangeBetweenTarget < behaviorOptions.distanceAroundToLandingPointToStopGoUp then
             orderPoint.z = state.entity:GetPos().z
           end
@@ -137,7 +134,7 @@ local behaviorSetup =
       if (curTime - state.timePointOfOperation) > behaviorOptions.timeoutToRetryLandingOrder then
 
         local direction = g_Vectors.temp_v1;
-        SubVectors(direction, state.target, state.entity:GetPos())
+        SubVectors(direction, state.targetPosition, state.entity:GetPos())
         NormalizeVector(direction)
         direction.z = - (1 + math.max(1, distance / 50.0))
 
@@ -186,16 +183,35 @@ local behaviorSetup =
 		    HUD.DisplayBigOverlayFlashMessage("Reinforcements ship was destroyed, before reaching landing point", 2, 400, 375, { x=0.96, y=0.63, z=0 });
       end
     end
+  end,
+
+  onSaveAction = function (self, save)
+    save.targetPosition = self.targetPosition
   end
 }
 
-function CreateAndRunMachineLandingManager(entity, target, afterLandMachineAction)
-  local fsm = CreateStateManagerBasedOnPreset(behaviorSetup, entity)
-  fsm.target = target
+function CreateAndRunMachineLandingManager(typeKey, entity, targetPosition, afterLandMachineAction)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, entity)
+  fsm.targetPosition = targetPosition
 
   fsm.finishAction = afterLandMachineAction
 
 	HUD.AddEntityToRadar(entity.id);
+
+  RunStateManagerAsync(fsm)
+
+  return fsm
+end
+
+function LoadAndRunMachineLandingManager(typeKey, behaviorSave, afterLandMachineAction)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, nil, behaviorSave)
+  if not fsm then
+    return nil
+  end
+
+  fsm.targetPosition = behaviorSave.targetPosition
+
+  fsm.finishAction = afterLandMachineAction
 
   RunStateManagerAsync(fsm)
 

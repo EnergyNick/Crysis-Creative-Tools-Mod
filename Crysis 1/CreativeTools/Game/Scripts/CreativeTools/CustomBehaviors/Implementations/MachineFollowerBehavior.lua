@@ -30,6 +30,7 @@ local behaviorSetup =
   initialState = 'Normal',
 
   fsmTransitionEvents = {
+    { name = 'Initialized',      from = 'Start',                     to = 'Normal'     },
     { name = 'TargetTooFar',     from = 'Normal',                    to = 'Following'  },
     { name = 'TargetInRange',    from = 'Following',                 to = 'Normal'     },
     { name = 'TargetOutOfRange', from = 'Following',                 to = 'Normal'     },
@@ -40,6 +41,14 @@ local behaviorSetup =
 
   fsmStateActions =
   {
+    Start = function (state)
+      if IsFlyingVehicles(state.entity) then
+          DisablePhysicsAndLaterEnabledWithUpPush(state.entity, 2000)
+      end
+
+      state:Initialized()
+    end,
+
     Normal = function(state)
 
       local entityToFollow = state.target
@@ -104,14 +113,31 @@ local behaviorSetup =
     if (state.entity:IsDead()) then
       KillAllPassengersInVehicle(state.entity)
     end
+  end,
+
+  onSaveAction = function (self, save)
+    save.targetName = self.target:GetName()
   end
 }
 
-function CreateAndRunMachineFollowerManager(entity, target)
-  local fsm = CreateStateManagerBasedOnPreset(behaviorSetup, entity)
+function CreateAndRunMachineFollowerManager(typeKey, entity, target)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, entity)
   fsm.target = target
 
 	HUD.AddEntityToRadar(entity.id);
+
+  RunStateManagerAsync(fsm)
+
+  return fsm
+end
+
+function LoadAndRunMachineFollowerManager(typeKey, behaviorSave)
+  local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, nil, behaviorSave)
+  if not fsm then
+    return nil
+  end
+
+  fsm.target = System.GetEntityByName(behaviorSave.targetName)
 
   RunStateManagerAsync(fsm)
 
