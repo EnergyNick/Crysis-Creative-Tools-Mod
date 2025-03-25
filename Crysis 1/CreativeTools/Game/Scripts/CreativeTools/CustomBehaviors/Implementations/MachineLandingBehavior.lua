@@ -57,15 +57,14 @@ local behaviorSetup =
         local orderPointOfSprint = GetPointNearTargetPosition(state.entity:GetPos(), state.targetPosition, behaviorOptions.distanceToLandPointToLowerSpeed)
         InPlaceVectorApplyTerrainOffset(orderPointOfSprint, behaviorOptions.terrainOffset)
 
-        if entitySpeed < 5 and IsEntityXYDirectionRotatedMoreThan(state.entity, orderPointOfSprint, 2) then
+        if IsEntityXYDirectionRotatedMoreThan(state.entity, orderPointOfSprint, 2) then
           SetNavigationToRotateAndGetIsRotated(state.entity, orderPointOfSprint, state.wayDirection)
-          HUD.DrawStatusText("Rotate ordered")
+          System.Log("Rotate ordered")
           return 500
         end
 
         state.entity.vehicle:SetMovementMode(1);
         SetNavigationToFastFlyAndGetIsCrossed(state.entity, orderPointOfSprint, state.wayDirection)
-        HUD.DrawStatusText("Sprint ordered")
         return 500
       end
 
@@ -86,14 +85,14 @@ local behaviorSetup =
           ScaleVectorInPlace(negateDirection, -0,5)
           negateDirection.z = 0
           AI.SetForcedNavigation(state.entity.id, negateDirection)
-          HUD.DrawStatusText("Slowing ordered")
+          System.Log("Slowing ordered")
         else
           local orderPoint = GetPositionWithTerrainOffset(state.targetPosition, behaviorOptions.terrainOffset)
           if rangeBetweenTarget < behaviorOptions.distanceAroundToLandingPointToStopGoUp then
             orderPoint.z = state.entity:GetPos().z
           end
           OrderEntityGoToPositionWithSpeed(state.entity, orderPoint, 3)
-          HUD.DrawStatusText("GoTo ordered")
+          System.Log("["..state.typeN.."] GoTo ordered")
         end
 
         state.timePointOfOperation = curTime

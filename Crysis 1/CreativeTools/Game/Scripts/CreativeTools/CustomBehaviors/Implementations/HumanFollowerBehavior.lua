@@ -86,11 +86,13 @@ local behaviorSetup =
           state.entity:SelectPipe(0, "random_look_around");
         else
           local targets = GetNearestEnemiesEntities(state.entity, behaviorOptions.distanceAroundToFindEnemies, AIOBJECT_PUPPET)
-          local enemyChoose = random(1, count(targets))
+          if targets and count(targets) > 0 then
+            local enemyChoose = random(1, count(targets))
 
-          OrderEntitySpeedOfAction(state.entity, 3)
-          OrderEntityGoToPosition(state.entity, targets[enemyChoose]:GetPos())
-          HUD.DrawStatusText("Found target, go to that")
+            OrderEntitySpeedOfAction(state.entity, 3)
+            OrderEntityGoToPosition(state.entity, targets[enemyChoose]:GetPos())
+            System.Log("Found target, go to that")
+          end
         end
 
         state.timePointOfOperation = curTime
@@ -105,7 +107,7 @@ local behaviorSetup =
 
       local rangeBetweenTarget = GetLengthBetweenEntities(state.entity, entityToFollow)
       if (rangeBetweenTarget > behaviorOptions.rangeBetweenTargetToStopFollowing) then
-        HUD.DrawStatusText("Out of range, stop")
+        System.Log("Out of range, stop")
         state:TargetOutOfRange()
         return 100
       end
@@ -174,7 +176,6 @@ local behaviorSetup =
         end
 
         local passengerId = seat:GetPassengerId()
-        -- HUD.DrawStatusText("Try to seat "..tostring(state.entity.id)..(passengerId and (" (seat pass="..tostring(passengerId)..") ") or ""))
 
         if passengerId and passengerId ~= state.entity.id then
           state.requestedSeatIndex = nil

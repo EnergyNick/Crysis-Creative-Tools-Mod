@@ -44,6 +44,7 @@ function PrintTable(table)
 				text = text..val..", "
 			end
 			HUD.DrawStatusText(text)
+			System.Log(text)
 			printed = {}
 		end
 	end

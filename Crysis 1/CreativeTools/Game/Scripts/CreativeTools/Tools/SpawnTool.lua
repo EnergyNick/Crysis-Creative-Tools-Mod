@@ -76,7 +76,7 @@ local ToolActions = {
 	["firemode"] = function (self)
 		local lastIndex = count(self.spawnedEntityNamesPool)
 
-		if (lastIndex == 0) then
+		if (not lastIndex or lastIndex == 0) then
 			HUD.HitIndicator();
 			return;
 		end

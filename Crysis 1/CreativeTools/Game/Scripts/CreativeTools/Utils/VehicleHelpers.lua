@@ -110,7 +110,7 @@ local function toFlyIteration(data)
 
 		AI.SetForcedNavigation(data.vehicle.id, direction)
 		Script.SetTimer(500, toFlyIteration, data)
-		HUD.DrawStatusText("Order fly up")
+		System.Log("["..typeKey.."]: Order fly up")
 	else
 		local direction = {}
 		ZeroVector(direction)
@@ -118,9 +118,9 @@ local function toFlyIteration(data)
 			CopyVector(direction, data.vehicle:GetDirectionVector(2))
 			ScaleVectorInPlace(direction, -0.25)
 			Script.SetTimer(500, toFlyIteration, data)
-			HUD.DrawStatusText("Order slow down")
+			System.Log("Order slow down")
 		else
-			HUD.DrawStatusText("Order stop")
+			System.Log("Order stop")
 		end
 		AI.SetForcedNavigation(data.vehicle.id, direction)
 	end
@@ -182,7 +182,6 @@ function SetNavigationToFastFlyAndGetIsCrossed(entity, positionVector, currentTo
 		end
 	end
 
-	HUD.DrawStatusText("Nav: " .. VectorToString(navigationDirection))
 	AI.SetForcedNavigation(entity.id, navigationDirection);
 	return isCrossedSuccessfully;
 end
@@ -196,6 +195,7 @@ local function ExitByChainAndGoToRandomPoint(data)
 
 			-- Use for equip weapon and searching behavior
 			data.entity:MakeAlerted()
+			AI.SetStance(data.entity.id,BODYPOS_STEALTH);
 		end
 
 		Script.SetTimer(1500, ExitByChainAndGoToRandomPoint, data)
@@ -259,7 +259,6 @@ function SetGunnerIgnorant(vehicle, ignorantOneOrZero)
 			if (member ~= nil) then
 				if (not seat.isDriver and seat.seat:GetWeaponCount() > 0) then
 					AI.SetIgnorant(member.id, ignorantOneOrZero);
-					HUD.DrawStatusText("Ignorant set to " .. tostring(ignorantOneOrZero))
 				end
 			end
 		end

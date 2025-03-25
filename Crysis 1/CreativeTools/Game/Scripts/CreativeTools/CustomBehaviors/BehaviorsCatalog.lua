@@ -26,9 +26,11 @@ function SaveCustomBehaviorManagers(player, save)
 
     local behaviorSaves = {}
     for key, behavior in pairs(player.customBehaviorManagers) do
-        local data = behavior:GetSave()
-        if data then
-            table.insert(behaviorSaves, data)
+        if behavior then
+            local data = behavior:GetSave()
+            if data then
+                table.insert(behaviorSaves, data)
+            end
         end
     end
 
@@ -60,10 +62,10 @@ function LoadCustomBehaviorManagers(player, saved)
     end
 
     local behaviors = {}
-    for key, behaviorSave in pairs(player.customBehaviorManagers) do
+    for key, behaviorSave in pairs(saved.customBehaviorManagers) do
         local data = loadBehaviorByName(behaviorSave, player)
         if data then
-            table.insert(behaviors, data) 
+            table.insert(behaviors, data)
         end
     end
 

@@ -665,8 +665,6 @@ end
 function Player:OnSave(save)
 	BasicActor.OnSave(self, save);
 
-	self:OnSaveCreativeTools(save)
-
 --	local savedTable =self.AI_WeaponAccessoryTable;
 --	if(savedTable) then 
 --		save.AI_WeaponAccessoryTable = {};
@@ -680,8 +678,6 @@ end
 
 function Player:OnLoad(saved)
 	BasicActor.OnLoad(self, saved);
-
-	self:OnLoadCreativeTools(saved)
 
 --	HUD:Spawn(self);
 
@@ -697,15 +693,21 @@ end
 
 function Player:OnLoadAI(saved)
 	self.AI = {};
-	if(saved.AI) then 
+	if(saved.AI) then
 		self.AI = saved.AI;
 	end
+
+	-- Default OnLoad don't work correctly, that's why we use OnLoadAI
+	self:OnLoadCreativeTools(saved)
+
 end
 
 function Player:OnSaveAI(save)
 	if(self.AI) then 
 		save.AI = self.AI;
 	end
+
+	self:OnSaveCreativeTools(save)
 end
 
 function Player.Client:OnAnimationEvent(animation,strPar,intPar)	

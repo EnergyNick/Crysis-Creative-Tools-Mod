@@ -44,7 +44,7 @@ end
 
 function GetNearestEnemiesEntities(entity, range, aiObjectType)
 	local objects = {};
-	local numObjects = AI.GetNearestEntitiesOfType(entity, aiObjectType, range, objects );
+	local numObjects = AI.GetNearestEntitiesOfType(entity:GetPos(), aiObjectType, range, objects );
 
 	local result = {}
 	for i = 1, numObjects do
@@ -108,98 +108,6 @@ function OrderEntityGoToPositionWithSpeed(entity, positionVector, oneOfSpeeds)
 	-- end
 end
 
-function OrderVtolGoToPositionWithSpeed(entity, positionVector, oneOfSpeeds)
-	-- CopyVector(g_SignalData.point, positionVector);
-	-- g_SignalData.iValue = 143;
-	-- AI.Signal(SIGNALFILTER_SENDER, 0, "TO_VTOL_FLY", entity.id, g_SignalData);
-	-- AI.Signal(SIGNALFILTER_SENDER, 0, "ACT_DUMMY", entity.id, g_SignalData);
-
-	if not entity.AI.vDirectionRsv then
-		entity.AI.vDirectionRsv = { x = 0, y = 0, z = 0 }
-	end
-
-	if not entity.AI.bLock then
-		entity.AI.bLock = 0
-	end
-
-	-- if ( entity.AI == nil or entity:GetSpeed() == nil ) then
-	-- 	local myEntity = System.GetEntity( entity.id );
-	-- 	if ( myEntity ) then
-	-- 		local vZero = {x=0.0,y=0.0,z=0.0};
-	-- 		AI.SetForcedNavigation( entity.id, vZero );
-	-- 	end
-	-- 	return true;
-	-- end
-
-	-- if ( not entity.id or not System.GetEntity( entity.id ) ) then
-	-- 	local vZero = {x=0.0,y=0.0,z=0.0};
-	-- 	AI.SetForcedNavigation( entity.id, vZero );
-	-- 	return true;
-	-- end
-
-	-- if ( not entity:IsActive() or not AI.IsEnabled(entity.id) ) then
-	-- 	local vZero = {x=0.0,y=0.0,z=0.0};
-	-- 	AI.SetForcedNavigation( entity.id, vZero );
-	-- 	return true;
-	-- end
-
-	--------------------------------------------------------------------------
-	if (entity.AI.bLock == 0) then
-		local vDir = {};
-		CopyVector(vDir, entity:GetDirectionVector(1));
-		vDir.z = 0;
-		NormalizeVector(vDir);
-
-		local vTmp = {};
-		SubVectors(vTmp, positionVector, entity:GetPos());
-		vTmp.z = 0.0;
-		NormalizeVector(vTmp);
-		FastScaleVector(vTmp, vTmp, 3.0);
-		AI.SetForcedNavigation(entity.id, vTmp);
-		HUD.DrawStatusText("Ticking on 0")
-
-		if (entity:GetSpeed() < 5.0) then
-			CopyVector(entity.AI.vDirectionRsv, vTmp);
-			NormalizeVector(entity.AI.vDirectionRsv);
-			if (dotproduct3d(vDir, entity.AI.vDirectionRsv) > math.cos(3.1416 * 2.0 / 180.0)) then
-				HUD.DrawStatusText("Replace to 1")
-				entity.AI.bLock = 1;
-				entity.vehicle:SetMovementMode(1);
-			end
-		end
-		return false;
-	end
-
-	if (entity.AI.bLock == 1) then
-		local vTmp = {};
-		local vMyPos = {};
-
-		FastScaleVector(vTmp, entity.AI.vDirectionRsv, 65.0);
-
-		CopyVector(vMyPos, entity:GetPos());
-		if (vMyPos.z < positionVector.z) then
-			vTmp.z = 3.0;
-		end
-		AI.SetForcedNavigation(entity.id, vTmp);
-
-		local vDir = {};
-		SubVectors(vDir, positionVector, entity:GetPos());
-		vDir.z = 0;
-		NormalizeVector(vDir);
-		local product = dotproduct3d(vDir, entity.AI.vDirectionRsv)
-		HUD.DrawStatusText("Ticking, scalar =  " .. tostring(product))
-
-		if (product < 0) then
-			HUD.DrawStatusText("Replace to 0")
-			entity.AI.bLock = 0;
-			local vZero = { x = 0.0, y = 0.0, z = 0.0 };
-			AI.SetForcedNavigation(entity.id, vZero);
-			entity.vehicle:SetMovementMode(0)
-			return true
-		end
-		return false;
-	end
-end
 
 ---@param oneOfSpeeds integer From sprint speed to slowest (from 3 to -2)
 function OrderEntitySpeedOfAction(entity, oneOfSpeeds)

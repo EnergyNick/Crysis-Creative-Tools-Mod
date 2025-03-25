@@ -142,6 +142,7 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 		cameraDirection.y = -cameraDirection.y
 		positionToSpawn = GetFarthestValidPositionOnDistanceWithTerrainOffset(self.player, cameraDirection, currentItemPreset.spawnDistanceAbovePlayer, zOffset)
 	else
+		positionToSpawn = {}
 		CopyVector(positionToSpawn, hitPoint)
 		positionToSpawn.z = positionToSpawn.z + zOffset
 	end
@@ -185,23 +186,25 @@ end
 function UserTool:OnSave(save)
 
 	local entityInfos = {}
-	for i, name in pairs(self.spawnedEntityNamesPool) do
-		local obj = System.GetEntityByName(name)
-		if obj then
-			local entitySave = {}
-			if obj.spawnInfo then
-				entitySave.spawnInfo = obj.spawnInfo
-			end
-
-			if obj.spawnedCrewNames then
-				local res = {}
-				for j, crewName in pairs(obj.spawnedCrewNames) do
-					table.insert(res, crewName)
+	for i, nameGroup in pairs(self.spawnedEntityNamesPool) do
+		for j, name in pairs(nameGroup) do
+			local obj = System.GetEntityByName(name)
+			if obj then
+				local entitySave = {}
+				if obj.spawnInfo then
+					entitySave.spawnInfo = obj.spawnInfo
 				end
-				entitySave.crewNames = res
-			end
 
-			entityInfos[name] = entitySave
+				if obj.spawnedCrewNames then
+					local res = {}
+					for _, crewName in pairs(obj.spawnedCrewNames) do
+						table.insert(res, crewName)
+					end
+					entitySave.crewNames = res
+				end
+
+				entityInfos[name] = entitySave
+			end
 		end
 	end
 
@@ -224,30 +227,39 @@ function UserTool:OnLoad(saved)
 		self.currentElementIndex = fromSave.currentElementIndex
 		self.spawnedEntityNamesPool = {}
 
-		for i, name in pairs(fromSave.spawnedEntityNamesPool) do
-			local obj = System.GetEntityByName(name)
-			if obj then
-				table.insert(self.spawnedEntityNamesPool, name)
+		for i, nameGroup in pairs(fromSave.spawnedEntityNamesPool) do
+			local newGroup = {}
+			for j, name in pairs(nameGroup) do
+				local obj = System.GetEntityByName(name)
+				if obj then
+					table.insert(newGroup, name)
 
-				if fromSave.spawnedEntityAdditionalInfos and fromSave.spawnedEntityAdditionalInfos[name] then
-					local infos = fromSave.spawnedEntityAdditionalInfos[name]
+					if fromSave.spawnedEntityAdditionalInfos and fromSave.spawnedEntityAdditionalInfos[name] then
+						local infos = fromSave.spawnedEntityAdditionalInfos[name]
 
-					if infos.spawnInfo then
-						obj.spawnInfo = infos.spawnInfo
-					end
-
-					if infos.crewNames then
-						local res = {}
-						for j, crewName in pairs(infos.crewNames) do
-							table.insert(res, crewName)
+						if infos.spawnInfo then
+							obj.spawnInfo = infos.spawnInfo
 						end
-						obj.spawnedCrewNames = res
+
+						if infos.crewNames then
+							local res = {}
+							for j, crewName in pairs(infos.crewNames) do
+								table.insert(res, crewName)
+							end
+							obj.spawnedCrewNames = res
+						end
 					end
 				end
 			end
+
+			if count(newGroup) > 0 then
+				table.insert(self.spawnedEntityNamesPool, newGroup)
+			end
 		end
 
-		HUD.DrawStatusText("Save loaded")
+		System.Log("Save loaded successfully")
+	else
+        System.Log("["..self.toolName.."]: Can't find save slot, skipped")
 	end
 end
 

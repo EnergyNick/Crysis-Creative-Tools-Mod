@@ -1,16 +1,26 @@
+Script.ReloadScript("Scripts/common.lua");
 Script.ReloadScript("Scripts/Utils/Math.lua");
 Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateMachine.lua");
 
 
 function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
+    Log("["..typeKey.."]: Before entity get")
     local entityObj = nil
     if entity then
         entityObj = entity
     elseif managerSave then
-        entityObj = System.GetEntityByName(managerSave.entityName)
+        if managerSave.entityName then
+            entityObj = System.GetEntityByName(managerSave.entityName)
+            System.Log("Save name "..managerSave.entityName.." for "..typeKey)
+        else
+            System.Log("$4 ["..typeKey.."]:  Invalid save for load entityName for"..typeKey)
+        end
+
     end
 
     if not entityObj then
+        System.Log("$4["..typeKey.."]: Error: invalid behavior initialization, can't found entity, skipping")
+
         HUD.DisplayBigOverlayFlashMessage("Error: invalid behavior initialization, can't found entity, skipping", 
         4, 400, 275,
         { x = 1, y = 0, z = 0 });
@@ -18,9 +28,20 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
         return nil
     end
 
+    local initialState = preset.initialState
+    local onceOperationExecuted = false
+    if managerSave then
+        if managerSave.initialState then
+            initialState = managerSave.initialState
+        end
+        if managerSave.onceOperationExecuted then
+            onceOperationExecuted = managerSave.onceOperationExecuted
+        end
+    end
+
     local machineProvider = GetFiniteStateMachine()
     local fsm = machineProvider.create({
-        initial = (managerSave and managerSave.initialState) or preset.initialState,
+        initial = initialState,
         events = preset.fsmTransitionEvents,
         callbacks = preset.fsmCallbacks
     })
@@ -31,7 +52,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
     fsm.Actions = preset.fsmStateActions
 
     fsm.timePointOfOperation = 0
-    fsm.onceOperationExecuted = (managerSave and managerSave.onceOperationExecuted) or false
+    fsm.onceOperationExecuted = onceOperationExecuted
     fsm.onstatechange = function (self, event, from, to)
         self.timePointOfOperation = 0
         self.onceOperationExecuted = false
@@ -40,7 +61,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
             preset.defaultOnStateChange(self, event, from, to)
         end
 
-        HUD.DrawStatusText("State changed from "..from.." to "..to.." ["..self.entity:GetName().."]")
+        System.Log("["..typeKey.."]: State changed from "..from.." to "..to.." ["..self.entity:GetName().."]")
     end
 
     fsm.enableBehavior = true
@@ -55,6 +76,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
         local save = nil
         if self.enableBehavior then
             save = {}
+            save.initialState = self.current
             save.type = self.type
             save.entityName = self.entity:GetName()
             save.onceOperationExecuted = self.onceOperationExecuted
@@ -67,6 +89,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
         return save
     end
 
+    Log("["..typeKey.."]: Create FSM successfully")
     return fsm
 end
 
@@ -83,7 +106,7 @@ function StateManagerIteration(state)
 
     if (not state.enableBehavior) then return end
 
-    if (state.entity:IsDead()) then
+    if (not state.entity or state.entity:IsDead()) then
         state:CompleteBehavior()
         return
     end

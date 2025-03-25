@@ -102,7 +102,7 @@ local behaviorSetup =
           InPlaceVectorApplyTerrainOffset(orderPoint, behaviorOptions.flyingVehicleZOffset)
         end
         OrderEntityGoToPosition(state.entity, orderPoint)
-        -- HUD.DrawStatusText("Follow order")
+        System.Log("["..state.type.."]: Follow ordered")
         state.timePointOfOperation = curTime
       end
 
