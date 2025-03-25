@@ -50,8 +50,15 @@ local behaviorSetup =
     end,
 
     Normal = function(state)
-
       local entityToFollow = state.target
+
+      if entityToFollow.actor:IsPlayer() then
+        if entityToFollow.followingDisabled == true then
+          Log("Skip following, player disable that feature")
+          return 10000
+        end
+      end
+
       if entityToFollow:IsOnVehicle() then
         entityToFollow = System.GetEntity(entityToFollow.actor:GetLinkedVehicleId());
       end
@@ -77,6 +84,15 @@ local behaviorSetup =
 
     Following = function (state)
       local entityToFollow = state.target
+
+      if entityToFollow.actor:IsPlayer() then
+        if entityToFollow.followingDisabled == true then
+          Log("Skip following, player disable that feature")
+          state:TargetInRange()
+          return 500
+        end
+      end
+
       if entityToFollow:IsOnVehicle() then
         entityToFollow = System.GetEntity(entityToFollow.actor:GetLinkedVehicleId());
       end

@@ -86,7 +86,7 @@ local ToolActions = {
 		for i, name in pairs(lastEntityGroup) do
 			local toDelete = System.GetEntityByName(name);
 			if toDelete and toDelete.id then
-				System.RemoveEntity(toDelete.id);
+				DestroyEntity(toDelete)
 			end
 		end
 
@@ -99,20 +99,10 @@ local ToolActions = {
 	end,
 
 	["hud_openchat"] = function (self)
-
-		local type = System.GetCVar("v_debugVehicle");
-
-		if (not type or string.len(type) == 0) then
-			HUD.DrawStatusText("Not set entity name to CVar 'v_debugVehicle' for search, skip");
-			return;
-		end
-
-		if (TryFindElementAndSetByName(self, type)) then
-			HUD.DisplayBigOverlayFlashMessage("Selected entity from CVar = "..type, 2, { x=1, y=1, z=1});
-		else
-			-- When entered not existing entity name
-			HUD.DrawStatusText("Error: Can't find element be name ["..type.."]");
-		end
+		local prevValue = self.player.followingDisabled
+		self.player.followingDisabled = prevValue == nil or prevValue == false
+		local actionName = self.player.followingDisabled and "Disabled" or "Enabled"
+		HUD.DisplayBigOverlayFlashMessage(""..actionName.." following friendly entities", 2, 400, 375, { x=1, y=1, z=1 });
 	end
 }
 

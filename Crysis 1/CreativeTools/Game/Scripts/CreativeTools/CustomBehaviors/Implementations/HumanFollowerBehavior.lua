@@ -47,28 +47,35 @@ local behaviorSetup =
   fsmStateActions =
   {
     Normal = function(state)
-      if state.target:IsOnVehicle() then
-        local vehicle = System.GetEntity(state.target.actor:GetLinkedVehicleId());
-        local seatIndex = RequestMorePriorityOrClosestSeatExcludeDriver(vehicle, state.entity.id)
-        if seatIndex then
-          state:TargetEnter(vehicle)
+      if state.target.actor:IsPlayer() then
+        if state.target.followingDisabled == true then
+          Log("Skip following, player disable that feature")
+          return 10000
         end
 
-        return 100
-      end
+        if state.target:IsOnVehicle() then
+          local vehicle = System.GetEntity(state.target.actor:GetLinkedVehicleId());
+          local seatIndex = RequestMorePriorityOrClosestSeatExcludeDriver(vehicle, state.entity.id)
+          if seatIndex then
+            state:TargetEnter(vehicle)
+          end
 
-      local rangeBetweenTarget = GetLengthBetweenEntities(state.entity, state.target)
-      if (rangeBetweenTarget <= behaviorOptions.rangeBetweenTargetToStopFollowing) then
-        if (IsEntityAttentionOnHostile(state.entity)) then
-          if rangeBetweenTarget > behaviorOptions.rangeBetweenTargetToFollowOnFight then
+          return 100
+        end
+
+        local rangeBetweenTarget = GetLengthBetweenEntities(state.entity, state.target)
+        if (rangeBetweenTarget <= behaviorOptions.rangeBetweenTargetToStopFollowing) then
+          if (IsEntityAttentionOnHostile(state.entity)) then
+            if rangeBetweenTarget > behaviorOptions.rangeBetweenTargetToFollowOnFight then
+              state:TargetTooFar()
+              return 500
+            end
+
+            return 5000
+          elseif rangeBetweenTarget > behaviorOptions.rangeBetweenTargetToFollowOnIdle then
             state:TargetTooFar()
             return 500
           end
-
-          return 5000
-        elseif rangeBetweenTarget > behaviorOptions.rangeBetweenTargetToFollowOnIdle then
-          state:TargetTooFar()
-          return 500
         end
       end
 
@@ -101,6 +108,15 @@ local behaviorSetup =
 
     Following = function (state)
       local entityToFollow = state.target
+
+      if entityToFollow.actor:IsPlayer() then
+        if entityToFollow.followingDisabled == true then
+          Log("Skip following, player disable that feature")
+          state:TargetInRange()
+          return 500
+        end
+      end
+
       if entityToFollow:IsOnVehicle() then
         entityToFollow = System.GetEntity(entityToFollow.actor:GetLinkedVehicleId());
       end
@@ -138,6 +154,14 @@ local behaviorSetup =
     end,
 
     Entering = function(state)
+
+      if state.target.actor:IsPlayer() then
+        if state.target.followingDisabled == true then
+          Log("Skip following, player disable that feature")
+          state:CancelEnter()
+          return 500
+        end
+      end
 
       if not state.target:IsOnVehicle() then
         state:CancelEnter()

@@ -20,11 +20,49 @@
 ReinforcementSpawnList =
 {
 	{
-		name = "US Reinforcements",
+		name = "US Air Reinforcements",
 		categoryElements =
 		{
 			{
-				name = "vtol",
+				name = "Riflemans with sniper [From long distance]",
+				class = "US_vtol",
+				zOffset = 75,
+				behavior = "vehicle_landing_after_following",
+				maxDistanceOverride = 100,
+				spawnDistanceAbovePlayer = 450,
+				crew =
+				{
+					{ templateKey = "us-pilot-navy" 	    },
+					{ templateKey = "us-tank-driver-2" 	    },
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-4b" 		},
+					{ templateKey = "us-sniper-1" 		   	},
+					{ templateKey = "us-rifleman-3b" 		},
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-3b" 		},
+				}
+			},
+			{
+				name = "Riflemans with sniper [From short distance]",
+				class = "US_vtol",
+				zOffset = 75,
+				behavior = "vehicle_landing_after_following",
+				maxDistanceOverride = 100,
+				spawnDistanceAbovePlayer = 150,
+				crew =
+				{
+					{ templateKey = "us-pilot-navy"			},
+					{ templateKey = "us-tank-driver-2"		},
+					{ templateKey = "us-rifleman-5b"		},
+					{ templateKey = "us-rifleman-4b"		},
+					{ templateKey = "us-sniper-1" 		    },
+					{ templateKey = "us-rifleman-3b" 		},
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-3b" 		},
+				}
+			},
+			{
+				name = "Heavy Squad [From long distance]",
 				class = "US_vtol",
 				zOffset = 60,
 				behavior = "vehicle_landing_after_following",
@@ -32,104 +70,76 @@ ReinforcementSpawnList =
 				spawnDistanceAbovePlayer = 450,
 				crew =
 				{
-					{ templateKey = "us-pilot-navy" 	   },
-					{ templateKey = "us-tank-driver-2" 	   },
-					{ templateKey = "us-cover-rifleman-5b" },
-					{ templateKey = "us-cover-rifleman-4b" },
-					{ templateKey = "us-sniper-1" 		   },
-					{ templateKey = "us-cover-rifleman-3b" },
-					{ templateKey = "us-cover-rifleman-5b" },
-					{ templateKey = "us-cover-rifleman-3b" },
+					{ templateKey = "us-pilot-navy"			},
+					{ templateKey = "us-tank-driver-2"  	},
+					{ templateKey = "us-rifleman-5b-heavy" 	},
+					{ templateKey = "us-rifleman-6b-heavy" 	},
+					{ templateKey = "us-sniper-1" 			},
+					{ templateKey = "us-sniper-gauss-law" 	},
+					{ templateKey = "us-rifleman-3b" 		},
 				}
 			},
+		}
+	},
+	{
+		name = "US Air Reinforcements [Inside Player]",
+		categoryElements =
+		{
 			{
-				name = "vtol-2",
+				name = "Riflemans with sniper [From long distance]",
 				class = "US_vtol",
-				archetype = nil,
-				zOffset = 50,
+				zOffset = 75,
 				behavior = "vehicle_landing_after_following",
-				maxDistanceOverride = 50,
-				spawnDistanceAbovePlayer = 50,
+				maxDistanceOverride = 100,
+				spawnDistanceAbovePlayer = 300,
+				playerAsCrewSeatIndex = 6,
 				crew =
 				{
-					{
-						name = "Driver",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Gunner",
-						class = "Grunt",
-						archetype = "US.Pilot.NavyPilot",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
-					{
-						name = "Reinforcement",
-						class = "Grunt",
-						archetype = "US.Grunt/Cover.US_Rifleman_3b",
-					},
+					{ templateKey = "us-pilot-navy" 	    },
+					{ templateKey = "us-tank-driver-2" 	    },
+					{ templateKey = "us-rifleman-5b"		},
+					{ templateKey = "us-rifleman-4b" 		},
+					{ templateKey = "us-sniper-1" 		   	},
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-3b" 		},
 				}
 			},
 			{
-				name = "vtol-3",
+				name = "Riflemans with sniper [From short distance]",
+				class = "US_vtol",
+				zOffset = 75,
+				behavior = "vehicle_landing_after_following",
+				maxDistanceOverride = 100,
+				spawnDistanceAbovePlayer = 150,
+				playerAsCrewSeatIndex = 6,
+				crew =
+				{
+					{ templateKey = "us-pilot-navy" 	    },
+					{ templateKey = "us-tank-driver-2" 	    },
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-4b" 		},
+					{ templateKey = "us-sniper-1" 			},
+					{ templateKey = "us-rifleman-5b" 		},
+					{ templateKey = "us-rifleman-3b" 		},
+				}
+			},
+			{
+				name = "Heavy Squad [From long distance]",
 				class = "US_vtol",
 				zOffset = 60,
 				behavior = "vehicle_landing_after_following",
 				maxDistanceOverride = 100,
-				spawnDistanceAbovePlayer = 450,
-				playerAsCrewSeatIndex = 4,
+				spawnDistanceAbovePlayer = 300,
+				playerAsCrewSeatIndex = 8,
 				crew =
 				{
-					{ templateKey = "us-pilot-navy" 	   },
-					{ templateKey = "us-tank-driver-2" 	   },
-					{ templateKey = "us-cover-rifleman-5b" },
-					{ templateKey = "us-cover-rifleman-4b" },
-					{ templateKey = "us-sniper-1" 		   },
-					{ templateKey = "us-cover-rifleman-5b" },
-					{ templateKey = "us-cover-rifleman-3b" },
-				}
-			},
-			{
-				name = "vtol-4",
-				class = "Asian_helicopter",
-				archetype = nil,
-				zOffset = 50,
-				behavior = "vehicle_landing_after_following",
-				maxDistanceOverride = 100,
-				spawnDistanceAbovePlayer = 30,
-				crew =
-				{
-					{ templateKey = "us-pilot-navy" 	   },
-					{ templateKey = "us-tank-driver-2" 	   },
-					{ templateKey = "us-cover-rifleman-5b" },
-					{ templateKey = "us-cover-rifleman-4b" },
-					{ templateKey = "us-sniper-1" 		   },
-					{ templateKey = "us-cover-rifleman-3b" },
-					{ templateKey = "us-cover-rifleman-5b" },
+					{ templateKey = "us-pilot-navy"			},
+					{ templateKey = "us-tank-driver-2"  	},
+					{ templateKey = "us-rifleman-5b-heavy" 	},
+					{ templateKey = "us-rifleman-6b-heavy" 	},
+					{ templateKey = "us-sniper-1" 			},
+					{ templateKey = "us-sniper-gauss-law" 	},
+					{ templateKey = "us-rifleman-3b" 		},
 				}
 			},
 		}

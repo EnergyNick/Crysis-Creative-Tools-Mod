@@ -1,6 +1,7 @@
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/BehaviorsCatalog.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/Utils/TableManagementUtils.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/EntityPresetTemplates.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/Utils/EntityHelpers.lua");
 
 
 local GlobalProperties = {
@@ -151,27 +152,32 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 		return nil
 	end
 
+	-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
 	local playerPos = self.player:GetPos()
 	local distanceBetweenSpawnPoints = GetLengthBetweenPositions(playerPos, positionToSpawn)
-	local afterSpawnUpdatePos = g_Vectors.temp_v3
-	-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
-	if (distanceBetweenSpawnPoints > 100) then
-		CopyVector(afterSpawnUpdatePos, positionToSpawn)
-		CopyVector(positionToSpawn, GetPositionOnDistanceWithTerrainOffset(playerPos, cameraDirection, 50, zOffset))
+	local tempPositionToSpawn = g_Vectors.temp_v3
+	local isNeedToUseAIHack = distanceBetweenSpawnPoints > 100
+	if isNeedToUseAIHack then
+		CopyVector(tempPositionToSpawn, GetPositionOnDistanceWithTerrainOffset(playerPos, cameraDirection, 50, zOffset))
+	else
+		CopyVector(tempPositionToSpawn, positionToSpawn)
 	end
 
-	local entity = self:SpawnEntity(positionToSpawn, currentItemPreset, self.player:GetDirectionVector(1))
+	local entity = self:SpawnEntity(tempPositionToSpawn, currentItemPreset, self.player:GetDirectionVector(1))
 
-	-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
-	if (distanceBetweenSpawnPoints > 100) then
-		Script.SetTimer(150, function (ent) ent:SetPos(afterSpawnUpdatePos) end, entity)
+	if entity then
+		if isNeedToUseAIHack then
+			Script.SetTimer(150, function (ent) ent:SetPos(positionToSpawn) end, entity)
+		end
+
+		-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
+		entity.spawnInfo =
+		{
+			hitPoint = hitPoint,
+			point = positionToSpawn
+		}
 	end
 
-	entity.spawnInfo =
-	{
-		hitPoint = hitPoint,
-		point = entity:GetPos()
-	}
 
 	return entity
 end

@@ -110,7 +110,7 @@ local function toFlyIteration(data)
 
 		AI.SetForcedNavigation(data.vehicle.id, direction)
 		Script.SetTimer(500, toFlyIteration, data)
-		System.Log("["..typeKey.."]: Order fly up")
+		System.Log("["..(data.vehicle:GetName()).."]: Order fly up")
 	else
 		local direction = {}
 		ZeroVector(direction)
@@ -118,9 +118,9 @@ local function toFlyIteration(data)
 			CopyVector(direction, data.vehicle:GetDirectionVector(2))
 			ScaleVectorInPlace(direction, -0.25)
 			Script.SetTimer(500, toFlyIteration, data)
-			System.Log("Order slow down")
+			System.Log("["..(data.vehicle:GetName()).."]: Order slow down")
 		else
-			System.Log("Order stop")
+			System.Log("["..(data.vehicle:GetName()).."]: Order stop")
 		end
 		AI.SetForcedNavigation(data.vehicle.id, direction)
 	end

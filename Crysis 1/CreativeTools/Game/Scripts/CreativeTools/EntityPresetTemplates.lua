@@ -4,95 +4,145 @@ EntityPresetTemplates =
 {
     -- Asian solders
     {
-        key = "asian-camper-heavy-rifle",
+        key = "asian-heavy-rifle",
         description = "Asian heavy solder with Rifle",
         class = "Grunt",
-        archetype = "Asian_new.Camper\\Camp.Heavy_Rifle",
+        archetype = "Asian_new.Cover\\Camp.Heavy_Rifle",
     },
     {
-        key = "asian-camper-light-rifle-law",
+        key = "asian-light-rifle-law",
         description = "Asian light solder with Rifle & law",
         class = "Grunt",
-        archetype = "Asian_new.Camper\\Camp.Light_Rifle_LAW",
+        archetype = "Asian_new.Cover\\Camp.Light_Rifle_LAW",
     },
     {
-        key = "asian-camper-light-shootgun",
+        key = "asian-light-shootgun",
         description = "Asian light solder with Shootgun",
         class = "Grunt",
-        archetype = "Asian_new.Camper\\Camp.Light_Shootgun",
+        archetype = "Asian_new.Cover\\Camp.Light_Shootgun",
+    },
+    {
+        key = "asian-light-smg-grenade",
+        description = "Asian light solder with SMG",
+        class = "Grunt",
+        archetype = "Cover\\Camp.Light_SMG_Gren",
+    },
+    {
+        key = "asian-pilot-heli",
+        description = "Asian light solder with Shootgun",
+        class = "Grunt",
+        archetype = "Asian_new.Special\\Driver.NK_Driver_Heli",
+    },
+    {
+        key = "asian-pilot-tank",
+        description = "Asian light solder with Shootgun",
+        class = "Grunt",
+        archetype = "Asian_new.Special\\Driver.NK_Driver_Tank",
     },
     -- US solders
     {
-        key = "us-cover-rifleman-1b",
+        key = "us-rifleman-1b",
         description = "US solder with Rifle, variant 1",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_1b",
     },
     {
-        key = "us-cover-rifleman-1",
+        key = "us-rifleman-1",
         description = "US solder with Rifle, variant 1, no helmet",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_1",
     },
     {
-        key = "us-cover-rifleman-2b",
+        key = "us-rifleman-2b",
         description = "US solder with Rifle, variant 2",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_2b",
     },
     {
-        key = "us-cover-rifleman-2",
+        key = "us-rifleman-2",
         description = "US solder with Rifle, variant 2, no helmet",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_2",
     },
     {
-        key = "us-cover-rifleman-3b",
+        key = "us-rifleman-3b",
         description = "US solder with Rifle, variant 3",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_3b",
     },
     {
-        key = "us-cover-rifleman-3",
+        key = "us-rifleman-3",
         description = "US solder with Rifle, variant 3, no helmet",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_3",
     },
     {
-        key = "us-cover-rifleman-4b",
+        key = "us-rifleman-4b",
         description = "US solder with Rifle, variant 4",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_4b",
     },
     {
-        key = "us-cover-rifleman-4",
+        key = "us-rifleman-4",
         description = "US solder with Rifle, variant 4, no helmet",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_4",
     },
     {
-        key = "us-cover-rifleman-5b",
+        key = "us-rifleman-5b",
         description = "US solder with Rifle, variant 5",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_5b",
     },
     {
-        key = "us-cover-rifleman-5",
+        key = "us-rifleman-5",
         description = "US solder with Rifle, variant 5, no helmet",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_5",
     },
     {
-        key = "us-cover-rifleman-5b-scope",
-        description = "US solder with Rifle, variant 5",
+        key = "us-rifleman-5b-heavy",
+        description = "US heavy solder with Rifle, variant 5",
         class = "Grunt",
         archetype = "US.Grunt/Cover.US_Rifleman_5b",
         weaponAttachments =
         {
-            { weapon = "SCAR", attachment = "AssaultScope" },
+        --     { weapon = "SCAR", attachment = "AssaultScope" },
             { weapon = "SCAR", attachment = "LAMRifle" },
-            -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
+        --     -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
         },
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Rifleman_LAW"
+        }
+    },
+    {
+        key = "us-rifleman-6b",
+        description = "US solder with Rifle, variant 6",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_6b",
+    },
+    {
+        key = "us-rifleman-6",
+        description = "US solder with Rifle, variant 6, no helmet",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_6",
+    },
+    {
+        key = "us-rifleman-6b-heavy",
+        description = "US heavy solder with Rifle, variant 6",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_6b",
+        weaponAttachments =
+        {
+        --     { weapon = "SCAR", attachment = "AssaultScope" },
+            { weapon = "SCAR", attachment = "LAMRifle" },
+        --     -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
+        },
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Rifleman_LAW"
+        }
     },
     {
         key = "us-sniper-1",
@@ -103,6 +153,16 @@ EntityPresetTemplates =
         {
             -- equip_EquipmentPack="US_Gauss_LAW"
             equip_EquipmentPack="US_Sniper"
+        }
+    },
+    {
+        key = "us-sniper-law",
+        description = "US solder with Sniper",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_2",
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Gauss_LAW"
         }
     },
     {

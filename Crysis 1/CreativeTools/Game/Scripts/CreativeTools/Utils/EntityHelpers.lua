@@ -157,3 +157,21 @@ function CheckWeaponAttachments(entity)
 	ValidateWeaponAttachment(entity, "SOCOM","SOCOMSilencer");
 	ValidateWeaponAttachment(entity, "SOCOM","LAMFlashLight");
 end
+
+function DestroyEntity(entity)
+
+	if entity.RemoveActor then
+		entity:RemoveActor()
+		return
+	end
+
+	-- if entity.vehicle then
+	-- 	entity.vehicle:Destroy()
+	-- end
+
+	if entity.DestroyPhysics then
+		entity.DestroyPhysics()
+	end
+
+	System.RemoveEntity(entity.id)
+end

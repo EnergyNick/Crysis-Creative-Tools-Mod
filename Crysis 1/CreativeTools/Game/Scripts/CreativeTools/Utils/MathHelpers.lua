@@ -5,14 +5,14 @@ function VectorToString(vector)
 end
 
 function GetLengthBetweenPositions(first, second)
-	local diff = g_Vectors.temp_v1;
+	local diff = {};
 	CopyVector( diff, first );
 	SubVectors( diff, diff, second);
 	return LengthVector( diff );
 end
 
 function GetLengthBetweenPositionsOnXY(first, second)
-	local diff = g_Vectors.temp_v1;
+	local diff = {};
 	CopyVector( diff, first );
 	SubVectors( diff, diff, second);
 	diff.z = 0
@@ -39,7 +39,7 @@ function SubVectorsNormalizedOnXY(first, second)
 end
 
 function GetPointNearTargetPosition(sourcePosition, targetPosition, distanceNearTarget)
-	local direction = g_Vectors.temp_v1;
+	local direction = {};
 	local result = {};
 
 	SubVectors(direction, targetPosition, sourcePosition)
@@ -74,7 +74,7 @@ function GetFarthestValidPositionOnDistanceWithTerrainOffset(sourceEntity, direc
 end
 
 function GetPositionOnDistanceWithTerrainOffset(sourcePosition, direction, distance, zOffset)
-	local dirVectorScaled = g_Vectors.temp_v1
+	local dirVectorScaled = {}
 	CopyVector(dirVectorScaled, direction)
 	ScaleVectorInPlace(dirVectorScaled, distance);
 
@@ -97,7 +97,7 @@ function InPlaceVectorApplyTerrainOffset(position, zOffset)
 end
 
 function IsEntityXYDirectionRotatedMoreThan(entity, targetDirection, angleInDegree)
-	local vEntityDir = g_Vectors.temp_v3
+	local vEntityDir = {}
 	CopyVector(vEntityDir, entity:GetDirectionVector(1));
 	vEntityDir.z = 0;
 	NormalizeVector(vEntityDir);

@@ -92,7 +92,7 @@ local behaviorSetup =
             orderPoint.z = state.entity:GetPos().z
           end
           OrderEntityGoToPositionWithSpeed(state.entity, orderPoint, 3)
-          System.Log("["..state.typeN.."] GoTo ordered")
+          System.Log("["..state.type.."] GoTo ordered")
         end
 
         state.timePointOfOperation = curTime
@@ -145,6 +145,11 @@ local behaviorSetup =
     Unloading = function (state)
       local toExit = GetReinforcementsPassengerEntitiesFromVehicle(state.entity)
 
+      local elemStr = ""
+      for _, value in pairs(toExit) do
+        elemStr = elemStr..(value:GetName())..", "
+      end
+      Log("State: count = %i, ids = '%s'", count(toExit), elemStr)
       if (count(toExit) == 0) then
         state:ReinforcementOut()
         return 100

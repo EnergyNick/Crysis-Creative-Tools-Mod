@@ -86,7 +86,7 @@ local ToolActions = {
 		for i, name in pairs(lastEntityGroup) do
 			local toDelete = System.GetEntityByName(name);
 			if toDelete and toDelete.id then
-				System.RemoveEntity(toDelete.id);
+				DestroyEntity(toDelete)
 			end
 		end
 

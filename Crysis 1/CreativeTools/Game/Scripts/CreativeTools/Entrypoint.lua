@@ -6,6 +6,7 @@ Script.ReloadScript("Scripts/CreativeTools/Tools/ReinforcementsTool.lua");
 function Player:OnActionCreativeTools(action)
 
     if self:IsUsingSpawnToolNow() then
+        -- TODO: Remove after tests
         if action == "use" then
             local save = {}
             self:OnSaveCreativeTools(save)
@@ -14,6 +15,7 @@ function Player:OnActionCreativeTools(action)
         end
         local spawnTool = self:GetOrInitSpawnTool()
         spawnTool:OnAction(action)
+
     elseif self:IsUsingReinforcementsToolNow() then
         local reinforcementTool = self:GetOrInitReinforcementsTool()
         reinforcementTool:OnAction(action)
@@ -43,23 +45,25 @@ function Player:OnLoadCreativeTools(saved)
         saved = saved
     }
 
+    -- Use for wait to initialize all other and log any actions after all for log readability purpose
     Script.SetTimer(1500, function (data)
         local spawnTool = data.player:GetOrInitSpawnTool()
         if spawnTool then
             spawnTool:OnLoad(data.saved)
         end
-    
+
         local reinforcementTool = data.player:GetOrInitReinforcementsTool()
         if reinforcementTool then
             reinforcementTool:OnLoad(data.saved)
         end
-    
-        LoadCustomBehaviorManagers(data.player, data.saved)
-        Log("Save load successfully")
 
-        -- if data.player.extendPower then
-            -- TODO extend power, if user request that previously
-        -- end
+        LoadCustomBehaviorManagers(data.player, data.saved)
+
+        if data.saved.extendPowersEnable and data.saved.extendPowersEnable == 1 then
+            InvokeExtendPower(1)
+        end
+
+        Log("Save load successfully")
     end, data)
 
 end
@@ -69,12 +73,24 @@ function InvokeCreativeToolsCommand()
 	System.ExecuteCommand("i_giveitem ReinforcementsTool")
 end
 
-function InvokeExtendPower()
+function InvokeExtendPower(isActive)
+    if not isActive or (isActive == 1 or isActive == 0) then
+        HUD.DrawStatusText("Invalid arguments to call 'extend_power'")
+        return
+    end
+
+    System.SetCVar("g_suitSpeedEnergyConsumption", 50);
+    System.SetCVar("g_suitCloakEnergyDrainAdjuster", 0.4);
+    System.SetCVar("g_suitArmorHealthValue", 350);
+    System.SetCVar("g_suitRecoilEnergyCost", 8);
+    System.SetCVar("g_playerHealthValue", 150);
+
     local player = System.GetEntityByName("Dude")
-	System.ExecuteCommand("i_giveitem SpawnTool")
-	System.ExecuteCommand("i_giveitem ReinforcementsTool")
+    player.extendPowersEnable = isActive
+
+    HUD.DrawStatusText("Suit powers extended!")
 end
 
 
 System.AddCCommand("creative_tools", "InvokeCreativeToolsCommand()", "Give creative tools mods special items")
-System.AddCCommand("extend_power", "InvokeExtendPower()", "Extend player powers to be more powerful, but balanced")
+System.AddCCommand("extend_power", "InvokeExtendPower(%1)", "Extend player powers to be more powerful, but balanced")
