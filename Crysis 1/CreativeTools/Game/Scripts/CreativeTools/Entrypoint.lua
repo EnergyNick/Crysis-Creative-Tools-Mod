@@ -7,12 +7,12 @@ function Player:OnActionCreativeTools(action)
 
     if self:IsUsingSpawnToolNow() then
         -- TODO: Remove after tests
-        if action == "use" then
-            local save = {}
-            self:OnSaveCreativeTools(save)
-            dump(save)
-            self.debugSave = save
-        end
+        -- if action == "use" then
+        --     local save = {}
+        --     self:OnSaveCreativeTools(save)
+        --     dump(save)
+        --     self.debugSave = save
+        -- end
         local spawnTool = self:GetOrInitSpawnTool()
         spawnTool:OnAction(action)
 
@@ -45,7 +45,7 @@ function Player:OnLoadCreativeTools(saved)
         saved = saved
     }
 
-    -- Use for wait to initialize all other and log any actions after all for log readability purpose
+    -- Use for wait to initialize all other and run actions after all for safety and log readability purposes
     Script.SetTimer(1500, function (data)
         local spawnTool = data.player:GetOrInitSpawnTool()
         if spawnTool then
@@ -88,7 +88,7 @@ function InvokeExtendPower(isActive)
     local player = System.GetEntityByName("Dude")
     player.extendPowersEnable = isActive
 
-    HUD.DrawStatusText("Suit powers extended!")
+    HUD.DrawStatusText("[ Suit powers extended ]")
 end
 
 

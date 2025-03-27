@@ -37,42 +37,6 @@ local ToolActions = {
 		end
 	end,
 
-	["reload"] = function (self)
-		IncrementCategoryIndexCycled(self)
-		local current = GetCurrentCategory(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
-		else
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["zoom"] = function (self)
-
-		IncrementElementIndexCycled(self)
-
-		local current = GetCurrentElement(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
-		else
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["special"] = function (self)
-		local element = GetCurrentElementOrReset(self)
-		if not element then
-			HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
-			return
-		end
-
-		local categoryName = GetCurrentCategory(self).name
-		local elementName = element.name
-		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 2, 400, 375, { x=1, y=1, z=1 });
-	end,
-
 	["firemode"] = function (self)
 		local lastIndex = count(self.spawnedEntityNamesPool)
 
@@ -98,22 +62,47 @@ local ToolActions = {
 		end
 	end,
 
-	["hud_openchat"] = function (self)
+	["zoom"] = function (self)
+		IncrementElementIndexCycled(self)
+		local current = GetCurrentElement(self)
 
-		local type = System.GetCVar("v_debugVehicle");
-
-		if (not type or string.len(type) == 0) then
-			HUD.DrawStatusText("Not set entity name to CVar 'v_debugVehicle' for search, skip");
-			return;
-		end
-
-		if (TryFindElementAndSetByName(self, type)) then
-			HUD.DisplayBigOverlayFlashMessage("Selected entity from CVar = "..type, 2, { x=1, y=1, z=1});
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
 		else
-			-- When entered not existing entity name
-			HUD.DrawStatusText("Error: Can't find element be name ["..type.."]");
+			LogWarning("Empty elements")
+			ResetCategoryAndIndex(self)
 		end
-	end
+	end,
+
+	["reload"] = function (self)
+		IncrementCategoryIndexCycled(self)
+		local current = GetCurrentCategory(self)
+
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
+		else
+			LogWarning("Empty categories")
+			ResetCategoryAndIndex(self)
+		end
+	end,
+
+	["special"] = function (self)
+		SwitchToNextGroupCycled(self)
+		local current = GetCurrentGroup(self)
+
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch group to ["..current.name.."]", 2, 400, 375, { x=0, y=0.69, z=1 });
+		else
+			LogWarning("Empty groups")
+			ResetCategoryAndIndex(self)
+		end
+	end,
+
+	["use"] = function (self) self:ShowSelectedItem(true) end,
+
+	["nextitem"] = function (self) self:ShowSelectedItem(false) end,
+
+	["previtem"] = function (self) self:ShowSelectedItem(false) end,
 }
 
 ---------------------------------------------------------------------------------------------------------
@@ -131,7 +120,7 @@ end
 
 function Player:GetOrInitSpawnTool()
 	if not self[toolFieldName] then
-		local tool = CreateUserTool(toolFieldName, EntitySpawnList, ToolActions, self)
+		local tool = CreateUserTool(toolFieldName, ToolActions, self, EntitySpawnList)
 		self[toolFieldName] = tool
 	end
 	return self[toolFieldName]

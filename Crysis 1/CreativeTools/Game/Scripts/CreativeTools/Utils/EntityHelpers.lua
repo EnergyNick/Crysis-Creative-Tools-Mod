@@ -1,4 +1,5 @@
 Script.ReloadScript("Scripts/CreativeTools/Utils/MathHelpers.lua");
+Script.ReloadScript("Scripts/Utils/EntityUtils.lua");
 
 ---------------------------------------------------------------------------------------------------------
 -- Math functions
@@ -165,13 +166,33 @@ function DestroyEntity(entity)
 		return
 	end
 
-	-- if entity.vehicle then
-	-- 	entity.vehicle:Destroy()
-	-- end
-
 	if entity.DestroyPhysics then
 		entity.DestroyPhysics()
 	end
 
 	System.RemoveEntity(entity.id)
+end
+
+local physicsPreset = {
+	bRigidBody=1,
+	bRigidBodyActive = 1,
+	bResting = 1,
+	Density = -1,
+	Mass = 300,
+	Buoyancy=
+	{
+		water_density = 1000,
+		water_damping = 0,
+		water_resistance = 1000,	
+	},
+	bStaticInDX9Multiplayer = 1,
+}
+
+function PhysicalizeEntity(entity, physics)
+	local resultPhysic = physics or physicsPreset;
+	if (CryAction.IsImmersivenessEnabled() == 0) then
+		resultPhysic = Physics_DX9MP_Simple;
+	end
+	-- Init physics.
+	EntityCommon.PhysicalizeRigid(entity, 0, resultPhysic, 1);
 end

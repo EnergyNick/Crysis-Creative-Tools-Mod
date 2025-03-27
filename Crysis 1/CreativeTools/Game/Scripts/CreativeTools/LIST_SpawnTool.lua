@@ -19,10 +19,10 @@
 
 EntitySpawnList =
 {
-    {
-		name = "US Vehicles",
-		categoryElements =
+	{
+		name = "US",
 		{
+			name = "Vehicles",
 			{
 				name = "vtol",
 				class = "US_vtol",
@@ -65,70 +65,64 @@ EntitySpawnList =
 				archetype = nil,
 				zOffset = 0.5
 			},
-		}
-	},
+		},
 
-	{
-        name = "US NPC",
-        categoryElements =
-        {
-            {
-                name = "Solder with rifle, variant 1",
-                templateKey = "us-rifleman-1b",
-				behavior = "human_following"
-            },
+		{
+			name = "NPC",
 			{
-                name = "Solder with rifle, no helmet, variant 2",
-                templateKey = "us-rifleman-2",
+				name = "Solder with rifle, variant 1",
+				templateKey = "us-rifleman-1b",
 				behavior = "human_following"
-            },
+			},
 			{
-                name = "Solder with rifle, variant 3",
-				templateKey = "us-rifleman-3b",
-				behavior = "human_following"
-            },
-			{
-                name = "Solder with rifle, no helmet, variant 4",
-                templateKey = "us-rifleman-4",
-				behavior = "human_following"
-            },
-			{
-                name = "Heavy solder with rifle & LAW, variant 5",
-				templateKey = "us-rifleman-5b-heavy",
-				behavior = "human_following"
-            },
-			{
-                name = "Heavy solder with rifle & LAW, variant 6",
-				templateKey = "us-rifleman-6b-heavy",
-				behavior = "human_following"
-            },
-			{
-                name = "Sniper, variant 1",
-				templateKey = "us-sniper-1",
-				behavior = "human_following"
-            },
-			{
-                name = "Sniper & LAW",
-				templateKey = "us-sniper-2",
-				behavior = "human_following"
-            },
-			{
-                name = "US solder - Gauss",
+				name = "Solder with rifle, no helmet, variant 2",
 				templateKey = "us-rifleman-2",
 				behavior = "human_following"
-            },
+			},
 			{
-                name = "US solder - Gauss & LAW",
+				name = "Solder with rifle, variant 3",
+				templateKey = "us-rifleman-3b",
+				behavior = "human_following"
+			},
+			{
+				name = "Solder with rifle, no helmet, variant 4",
+				templateKey = "us-rifleman-4",
+				behavior = "human_following"
+			},
+			{
+				name = "Heavy solder with rifle & LAW, variant 5",
+				templateKey = "us-rifleman-5b-heavy",
+				behavior = "human_following"
+			},
+			{
+				name = "Heavy solder with rifle & LAW, variant 6",
+				templateKey = "us-rifleman-6b-heavy",
+				behavior = "human_following"
+			},
+			{
+				name = "Sniper, variant 1",
+				templateKey = "us-sniper-1",
+				behavior = "human_following"
+			},
+			{
+				name = "Sniper & LAW",
+				templateKey = "us-sniper-2",
+				behavior = "human_following"
+			},
+			{
+				name = "US solder - Gauss",
+				templateKey = "us-rifleman-2",
+				behavior = "human_following"
+			},
+			{
+				name = "US solder - Gauss & LAW",
 				templateKey = "us-sniper-gauss-law",
 				behavior = "human_following"
-            },
-        }
-    },
+			},
+		},
 
-	{
-		name = "US Vehicles with crew",
-		categoryElements =
 		{
+			name = "US Vehicles with crew",
 			{
 				name = "vtol",
 				class = "US_vtol",
@@ -186,13 +180,13 @@ EntitySpawnList =
 					{ templateKey = "us-rifleman-3b" },
 				}
 			},
-		}
+		},
 	},
 
 	{
-		name = "Asian Vehicles",
-		categoryElements =
+		name = "Asian",
 		{
+			name = "Vehicles",
 			{
 				name = "helicopter",
 				class = "Asian_helicopter",
@@ -235,40 +229,34 @@ EntitySpawnList =
 				archetype = nil,
 				zOffset = 0.5
 			},
-		}
-	},
+		},
 
-    {
-		name = "Asian NPC",
-		categoryElements =
 		{
+			name = "NPC",
 			{
 				name = "Asian heavy solder - Rifle",
-                templateKey = "asian-heavy-rifle",
+				templateKey = "asian-heavy-rifle",
 				maxDistanceOverride = 60,
 			},
 			{
 				name = "Asian light solder - Rifle & law",
-                templateKey = "asian-light-rifle-law",
+				templateKey = "asian-light-rifle-law",
 				maxDistanceOverride = 60,
 			},
 			{
 				name = "Asian light solder - Shootgun",
-                templateKey = "asian-light-shootgun",
+				templateKey = "asian-light-shootgun",
 				maxDistanceOverride = 60,
 			},
 			{
 				name = "Asian light solder - SMG",
-                templateKey = "asian-light-smg-grenade",
+				templateKey = "asian-light-smg-grenade",
 				maxDistanceOverride = 60,
 			},
-		}
-	},
+		},
 
-	{
-		name = "Asian Vehicles with crew",
-		categoryElements =
 		{
+			name = "Vehicles with crew",
 			{
 				name = "helicopter",
 				class = "Asian_helicopter",
@@ -339,13 +327,13 @@ EntitySpawnList =
 					{ templateKey = "asian-light-shootgun" },
 				}
 			},
-		}
+		},
 	},
 
 	{
-		name = "Weapons",
-		categoryElements =
+		name = "Common",
 		{
+			name = "Weapons",
 			{
 				name = "Scar Rifle",
 				class = "SCAR",
@@ -430,7 +418,6 @@ EntitySpawnList =
 				},
 				zOffset = 0.3
 			},
-		}
-	},
-
+		},
+	}
 }

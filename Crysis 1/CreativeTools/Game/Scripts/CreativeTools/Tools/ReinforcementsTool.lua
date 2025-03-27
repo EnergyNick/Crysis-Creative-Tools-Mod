@@ -37,42 +37,6 @@ local ToolActions = {
 		end
 	end,
 
-	["reload"] = function (self)
-		IncrementCategoryIndexCycled(self)
-		local current = GetCurrentCategory(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
-		else
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["zoom"] = function (self)
-
-		IncrementElementIndexCycled(self)
-
-		local current = GetCurrentElement(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
-		else
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["special"] = function (self)
-		local element = GetCurrentElementOrReset(self)
-		if not element then
-			HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
-			return
-		end
-
-		local categoryName = GetCurrentCategory(self).name
-		local elementName = element.name
-		HUD.DisplayBigOverlayFlashMessage("Selected category ["..categoryName.."], element ["..elementName.."]", 2, 400, 375, { x=1, y=1, z=1 });
-	end,
-
 	["firemode"] = function (self)
 		local lastIndex = count(self.spawnedEntityNamesPool)
 
@@ -102,8 +66,50 @@ local ToolActions = {
 		local prevValue = self.player.followingDisabled
 		self.player.followingDisabled = prevValue == nil or prevValue == false
 		local actionName = self.player.followingDisabled and "Disabled" or "Enabled"
-		HUD.DisplayBigOverlayFlashMessage(""..actionName.." following friendly entities", 2, 400, 375, { x=1, y=1, z=1 });
-	end
+		HUD.DisplayBigOverlayFlashMessage(""..actionName.." following player of friendly entities", 2, 400, 375, { x=1, y=1, z=1 });
+	end,
+
+	["zoom"] = function (self)
+		IncrementElementIndexCycled(self)
+		local current = GetCurrentElement(self)
+
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
+		else
+			LogWarning("Empty elements")
+			ResetCategoryAndIndex(self)
+		end
+	end,
+
+	["reload"] = function (self)
+		IncrementCategoryIndexCycled(self)
+		local current = GetCurrentCategory(self)
+
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
+		else
+			LogWarning("Empty categories")
+			ResetCategoryAndIndex(self)
+		end
+	end,
+
+	["special"] = function (self)
+		SwitchToNextGroupCycled(self)
+		local current = GetCurrentGroup(self)
+
+		if current then
+			HUD.DisplayBigOverlayFlashMessage("Switch group to ["..current.name.."]", 2, 400, 375, { x=0, y=0.69, z=1 });
+		else
+			LogWarning("Empty groups")
+			ResetCategoryAndIndex(self)
+		end
+	end,
+
+	["use"] = function (self) self:ShowSelectedItem(true) end,
+
+	["nextitem"] = function (self) self:ShowSelectedItem(false) end,
+
+	["previtem"] = function (self) self:ShowSelectedItem(false) end,
 }
 
 -- ToolActions['nextitem'] = ToolActions['previtem']
@@ -112,8 +118,6 @@ local ToolActions = {
 -- 	-- "lights"
 -- 	-- "hud_openchat"
 -- 	-- "hud_openteamchat"
--- 	-- "nextitem"
--- 	-- "previtem"
 
 ---------------------------------------------------------------------------------------------------------
 -- Player extensions
@@ -129,7 +133,7 @@ end
 
 function Player:GetOrInitReinforcementsTool()
 	if not self[toolFieldName] then
-		local tool = CreateUserTool(toolFieldName, ReinforcementSpawnList, ToolActions, self)
+		local tool = CreateUserTool(toolFieldName, ToolActions, self, ReinforcementSpawnList)
 		self[toolFieldName] = tool
 	end
 	return self[toolFieldName]

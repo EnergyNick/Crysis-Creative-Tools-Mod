@@ -50,30 +50,64 @@ function PrintTable(table)
 	end
 end
 
+local function countIndexElements(table)
+	local count = 0;
+	if (table) then
+		for i,v in ipairs(table) do
+			count = count+1;
+		end
+	end	
+	return count;
+end
+
 -------------------------------------------------------------------------------
 -- Reference of tableManager argument:
 -- {
--- 	table = {},
--- 	currentElementIndex = 1,
+--	groups = {},
+-- 	currentGroupIndex = 1,
 -- 	currentCategoryIndex = 1,
+-- 	currentElementIndex = 1,
 -- }
 
-function GetCurrentCategory(tableManager)
-	if tableManager.table then
-		return tableManager.table[tableManager.currentCategoryIndex]
+function SwitchToNextGroupCycled(tableManager)
+	if not tableManager.groups then
+		return
 	end
-	return nil
+
+	local tableCount = countIndexElements(tableManager.groups)
+	if tableCount == 1 then
+		return
+	end
+
+	local newIndex = tableManager.currentGroupIndex + 1
+	if newIndex > tableCount then
+		newIndex = 1
+	end
+
+	ResetCategoryAndIndex(tableManager)
+	tableManager.currentGroupIndex = newIndex
 end
 
-function ResetCategoryAndIndex(tableManager)
-	tableManager.currentCategoryIndex = 1
-	tableManager.currentElementIndex = 1
+function GetCurrentGroup(tableManager)
+	if not tableManager.groups then
+		return nil
+	end
+
+	return tableManager.groups[tableManager.currentGroupIndex]
+end
+
+function GetCurrentCategory(tableManager)
+	local group = GetCurrentGroup(tableManager)
+	if group then
+		return group[tableManager.currentCategoryIndex]
+	end
+	return nil
 end
 
 function GetElementInCategory(tableManager, index)
 	local category = GetCurrentCategory(tableManager)
 	if (category) then
-		return category.categoryElements[index]
+		return category[index]
 	end
 	return nil
 end
@@ -91,16 +125,20 @@ function GetCurrentElementOrReset(tableManager)
 	return item
 end
 
-function IncrementElementIndexCycled(tableManager)
-	local newIndex = tableManager.currentElementIndex + 1
+function ResetCategoryAndIndex(tableManager)
+	tableManager.currentCategoryIndex = 1
+	tableManager.currentElementIndex = 1
+end
 
+function IncrementElementIndexCycled(tableManager)
 	local category = GetCurrentCategory(tableManager)
 	if not category then
 		ResetCategoryAndIndex(tableManager)
 		return 1
 	end
 
-	local currentCategoryCount = count(category.categoryElements)
+	local currentCategoryCount = countIndexElements(category)
+	local newIndex = tableManager.currentElementIndex + 1
 	if (newIndex > currentCategoryCount) then
 		newIndex = 1
 	end
@@ -111,7 +149,7 @@ end
 
 function IncrementCategoryIndexCycled(tableManager)
 	local newIndex = tableManager.currentCategoryIndex + 1
-	if (newIndex > count(tableManager.table)) then
+	if (newIndex > countIndexElements(GetCurrentGroup(tableManager))) then
 		newIndex = 1
 	end
 	tableManager.currentElementIndex = 1
@@ -121,8 +159,12 @@ function IncrementCategoryIndexCycled(tableManager)
 end
 
 function TryFindElementAndSetByName(tableManager, elementName)
-	for catInd, category in pairs(tableManager.table) do
-		for i, value in pairs(category.categoryElements) do
+	local currentTable = GetCurrentGroup(tableManager)
+	if not currentTable then
+		return nil
+	end
+	for catInd, category in ipairs(currentTable) do
+		for i, value in ipairs(category) do
 
 			if value.name == elementName then
 				tableManager.currentElementIndex = i

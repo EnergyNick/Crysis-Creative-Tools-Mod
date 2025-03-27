@@ -20,9 +20,9 @@
 ReinforcementSpawnList =
 {
 	{
-		name = "US Air Reinforcements",
-		categoryElements =
+		name = "US",
 		{
+			name = "Air Reinforcements",
 			{
 				name = "Riflemans with sniper [From long distance]",
 				class = "US_vtol",
@@ -79,12 +79,9 @@ ReinforcementSpawnList =
 					{ templateKey = "us-rifleman-3b" 		},
 				}
 			},
-		}
-	},
-	{
-		name = "US Air Reinforcements [Inside Player]",
-		categoryElements =
+		},
 		{
+			name = "Air Reinforcements [Inside Player]",
 			{
 				name = "Riflemans with sniper [From long distance]",
 				class = "US_vtol",

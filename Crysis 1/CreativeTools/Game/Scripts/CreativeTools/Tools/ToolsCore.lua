@@ -18,7 +18,8 @@ UserTool = {
 	creationIndexSequence = 0,
 
 	-- Use for table management logic
-	table = {},
+	groups = {},
+	currentGroupIndex = 1,
 	currentElementIndex = 1,
 	currentCategoryIndex = 1,
 }
@@ -41,6 +42,11 @@ end
 function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEntitiesGroup)
 
 	entity.spawnedPosition = hitPosition
+
+	if spawnInfo.enablePhysics then
+		PhysicalizeEntity(entity)
+		Log("Physics "..(spawnInfo.enablePhysics and "enabled" or "disabled"))
+	end
 
 	if spawnInfo.weaponAttachments then
 		for i, item in pairs(spawnInfo.weaponAttachments) do
@@ -166,11 +172,11 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 	local entity = self:SpawnEntity(tempPositionToSpawn, currentItemPreset, self.player:GetDirectionVector(1))
 
 	if entity then
+		-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
 		if isNeedToUseAIHack then
 			Script.SetTimer(150, function (ent) ent:SetPos(positionToSpawn) end, entity)
 		end
 
-		-- Hack for AI initialization. Problem: AI activating only in range 100 (either vehicle ai is dummy)
 		entity.spawnInfo =
 		{
 			hitPoint = hitPoint,
@@ -180,6 +186,22 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 
 
 	return entity
+end
+
+function UserTool:ShowSelectedItem(showIfPresetIsInvalid)
+	local element = GetCurrentElementOrReset(self)
+	if not element then
+		if showIfPresetIsInvalid then
+			HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
+		end
+		return
+	end
+
+	local groupName = GetCurrentGroup(self).name
+	local categoryName = GetCurrentCategory(self).name
+	local elementName = element.name
+	local message = string.format("Selected group %q, category %q, element %q", groupName, categoryName, elementName)
+	HUD.DisplayBigOverlayFlashMessage(message, 2, 400, 375, { x=1, y=1, z=1 });
 end
 
 function UserTool:OnAction(action)
@@ -274,12 +296,14 @@ end
 
 local function getEntitiesPresets(spawnList)
 	local presetsCopy = CopyTableWithMetadata(spawnList, nil)
-	for _, category in pairs(presetsCopy) do
-		for i, preset in pairs(category.categoryElements) do
-			TryFindAndApplyTemplateToPreset(preset, EntityPresetTemplates)
-			if preset.crew then
-				for _, crewPreset in pairs(preset.crew) do
-					TryFindAndApplyTemplateToPreset(crewPreset, EntityPresetTemplates)
+	for _, group in ipairs(presetsCopy) do
+		for _, category in ipairs(group) do
+			for _, preset in ipairs(category) do
+				TryFindAndApplyTemplateToPreset(preset, EntityPresetTemplates)
+				if preset.crew then
+					for _, crewPreset in pairs(preset.crew) do
+						TryFindAndApplyTemplateToPreset(crewPreset, EntityPresetTemplates)
+					end
 				end
 			end
 		end
@@ -288,11 +312,11 @@ local function getEntitiesPresets(spawnList)
 	return presetsCopy
 end
 
-function CreateUserTool(toolName, spawnList, actionList, player)
-	local obj = CopyTableWithMetadata(UserTool, nil)
-	obj.toolName = toolName
-	obj.table = getEntitiesPresets(spawnList)
-	obj.player = player
-	obj.actions = actionList
-	return obj
+function CreateUserTool(toolName, actionList, player, spawnList)
+	local tool = CopyTableWithMetadata(UserTool, nil)
+	tool.toolName = toolName
+	tool.player = player
+	tool.actions = actionList
+	tool.groups = getEntitiesPresets(spawnList)
+	return tool
 end

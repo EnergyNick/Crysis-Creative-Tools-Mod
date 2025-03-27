@@ -11,7 +11,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
     elseif managerSave then
         if managerSave.entityName then
             entityObj = System.GetEntityByName(managerSave.entityName)
-            System.Log("Save name "..managerSave.entityName.." for "..typeKey)
+            System.Log("["..typeKey.."]: Save name "..managerSave.entityName.." for "..typeKey)
         else
             System.Log("$4 ["..typeKey.."]:  Invalid save for load entityName for"..typeKey)
         end
