@@ -5,100 +5,27 @@ Script.ReloadScript("SCRIPTS/CreativeTools/LIST_SpawnTool.lua");
 local toolFieldName = 'spawnTool'
 
 local ToolActions = {
-	["attack1"] = function (self)
-		local currentPreset = GetCurrentElementOrReset(self)
-		if not currentPreset then
-			HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
-			return
-		end
+	["attack1"] = function (self) self:SpawnCurrentSelectedPresetEntity() end,
 
-		local hit = self:PlayerMuzzleTrace(currentPreset)
+	["firemode"] = function (self) self:RemoveLastSpawnedEntityGroup() end,
 
-		if (not hit) then
-			HUD.HitIndicator();
-			return;
-		end
+	["zoom"] = function (self) self:ChangeToNextElementInPreset() end,
 
-		local entity = self:SpawnEntityWithPositionImprovements(hit.position, currentPreset)
+	["reload"] = function (self) self:ChangeToNextCategoryInPreset() end,
 
-		if (entity) then
-			local newEntitiesGroup = {
-				[1] = entity:GetName()
-			}
+	["special"] = function (self) self:ChangeToNextGroupInPreset() end,
 
-			ApplyEntityCustomizations(entity, currentPreset)
-			self:EntityAdditionalActions(entity, hit.position, currentPreset, newEntitiesGroup)
-
-			table.insert(self.spawnedEntityNamesPool, newEntitiesGroup)
-
-			HUD.DrawStatusText("Spawned ["..currentPreset.name.."]");
-		else
-			HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 4, 400, 275, { x=1, y=0, z=0});
-		end
-	end,
-
-	["firemode"] = function (self)
-		local lastIndex = count(self.spawnedEntityNamesPool)
-
-		if (not lastIndex or lastIndex == 0) then
-			HUD.HitIndicator();
-			return;
-		end
-
-		local lastEntityGroup = self.spawnedEntityNamesPool[lastIndex]
-		table.remove(self.spawnedEntityNamesPool, lastIndex)
-		for i, name in pairs(lastEntityGroup) do
-			local toDelete = System.GetEntityByName(name);
-			if toDelete and toDelete.id then
-				DestroyEntity(toDelete)
-			end
-		end
-
-		local countOfDeleted = count(lastEntityGroup)
-		if countOfDeleted == 1 then
-			HUD.DrawStatusText("Removed entity");
-		elseif countOfDeleted > 1 then
-			HUD.DrawStatusText("Removed group with "..tostring(countOfDeleted).." entities");
-		end
-	end,
-
-	["zoom"] = function (self)
-		IncrementElementIndexCycled(self)
-		local current = GetCurrentElement(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
-		else
-			LogWarning("Empty elements")
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["reload"] = function (self)
-		IncrementCategoryIndexCycled(self)
-		local current = GetCurrentCategory(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
-		else
-			LogWarning("Empty categories")
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["special"] = function (self)
-		SwitchToNextGroupCycled(self)
-		local current = GetCurrentGroup(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch group to ["..current.name.."]", 2, 400, 375, { x=0, y=0.69, z=1 });
-		else
-			LogWarning("Empty groups")
-			ResetCategoryAndIndex(self)
-		end
-	end,
-
-	["use"] = function (self) self:ShowSelectedItem(true) end,
+	["use"] = function (self) 
+			self:ShowSelectedItem(true) 
+			local dir = self.player:GetDirectionVector(1)
+			dump(dir)
+			local vRotateDir = SubVectorsNormalizedOnXY(self.player:GetPos(), g_Vectors.v000)
+			dump(vRotateDir)
+			local scalarBetweenDirections = dotproduct3d(vRotateDir, dir)
+			Log("State: dot = %s", scalarBetweenDirections)
+			-- local res = IsEntityXYDirectionRotatedMoreThan(self.player, g_Vectors.v000, 4)
+			-- Log("Res is "..tostring(res))
+		end,
 
 	["nextitem"] = function (self) self:ShowSelectedItem(false) end,
 
@@ -120,7 +47,7 @@ end
 
 function Player:GetOrInitSpawnTool()
 	if not self[toolFieldName] then
-		local tool = CreateUserTool(toolFieldName, ToolActions, self, EntitySpawnList)
+		local tool = CreateUserTool(toolFieldName, ToolActions, nil, self, EntitySpawnList)
 		self[toolFieldName] = tool
 	end
 	return self[toolFieldName]

@@ -57,14 +57,15 @@ local behaviorSetup =
         local orderPointOfSprint = GetPointNearTargetPosition(state.entity:GetPos(), state.targetPosition, behaviorOptions.distanceToLandPointToLowerSpeed)
         InPlaceVectorApplyTerrainOffset(orderPointOfSprint, behaviorOptions.terrainOffset)
 
-        if IsEntityXYDirectionRotatedMoreThan(state.entity, orderPointOfSprint, 2) then
+        if IsEntityRotatedXYToTargetMoreThan(state.entity, orderPointOfSprint, 2) then
           SetNavigationToRotateAndGetIsRotated(state.entity, orderPointOfSprint, state.wayDirection)
-          System.Log("Rotate ordered")
+          Log("Rotate ordered")
           return 500
         end
 
         state.entity.vehicle:SetMovementMode(1);
-        SetNavigationToFastFlyAndGetIsCrossed(state.entity, orderPointOfSprint, state.wayDirection)
+        SetNavigationToFastFlyAndGetIsCrossed(state.entity, orderPointOfSprint, state.wayDirection, behaviorOptions.terrainOffset)
+        Log("Sprint ordered")
         return 500
       end
 
@@ -92,7 +93,7 @@ local behaviorSetup =
             orderPoint.z = state.entity:GetPos().z
           end
           OrderEntityGoToPositionWithSpeed(state.entity, orderPoint, 3)
-          System.Log("["..state.type.."] GoTo ordered")
+          System.Log("["..state.type.."]: GoTo ordered")
         end
 
         state.timePointOfOperation = curTime
@@ -163,8 +164,10 @@ local behaviorSetup =
         local previous = nil
         for i = count(toExit), 1, -1 do
             local member = toExit[i]
-            StartExitByChainAndGoToRandomPointAsync(member, i, previous)
-            previous = member
+            if not member.actor:IsPlayer() then
+              StartExitByChainAndGoToRandomPointAsync(member, i, previous, state.reinforcementFinishAction)
+              previous = member
+            end
         end
 
         state.onceOperationExecuted = true
@@ -194,11 +197,12 @@ local behaviorSetup =
   end
 }
 
-function CreateAndRunMachineLandingManager(typeKey, entity, targetPosition, afterLandMachineAction)
+function CreateAndRunMachineLandingManager(typeKey, entity, targetPosition, afterLandMachineAction, afterExitReinforcementAction)
   local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, entity)
   fsm.targetPosition = targetPosition
 
   fsm.finishAction = afterLandMachineAction
+  fsm.reinforcementFinishAction = afterExitReinforcementAction
 
 	HUD.AddEntityToRadar(entity.id);
 
@@ -207,7 +211,7 @@ function CreateAndRunMachineLandingManager(typeKey, entity, targetPosition, afte
   return fsm
 end
 
-function LoadAndRunMachineLandingManager(typeKey, behaviorSave, afterLandMachineAction)
+function LoadAndRunMachineLandingManager(typeKey, behaviorSave, afterLandMachineAction, afterExitReinforcementAction)
   local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, nil, behaviorSave)
   if not fsm then
     return nil
@@ -216,6 +220,7 @@ function LoadAndRunMachineLandingManager(typeKey, behaviorSave, afterLandMachine
   fsm.targetPosition = behaviorSave.targetPosition
 
   fsm.finishAction = afterLandMachineAction
+  fsm.reinforcementFinishAction = afterExitReinforcementAction
 
   RunStateManagerAsync(fsm)
 

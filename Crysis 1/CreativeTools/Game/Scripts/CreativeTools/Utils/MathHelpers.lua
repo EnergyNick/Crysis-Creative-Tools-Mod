@@ -96,10 +96,29 @@ function InPlaceVectorApplyTerrainOffset(position, zOffset)
 	position.z = math.max(System.GetTerrainElevation(position) + zOffset, position.z)
 end
 
+function IsEntityRotatedXYToTargetMoreThan(entity, targetPosition, angleInDegree)
+	local vEntityDir = {}
+	CopyVector(vEntityDir, entity:GetDirectionVector(1));
+	vEntityDir.z = 0;
+	NormalizeVector(vEntityDir);
+
+	local directionToTarget = SubVectorsNormalizedOnXY(targetPosition, entity:GetPos())
+	-- NormalizeVector(directionToTarget)
+
+	local prod1 = dotproduct3d(vEntityDir, directionToTarget)
+	local ang2 = math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
+	Log("Tar: %f <= %f", prod1, ang2)
+	return prod1 <= ang2
+end
+
 function IsEntityXYDirectionRotatedMoreThan(entity, targetDirection, angleInDegree)
 	local vEntityDir = {}
 	CopyVector(vEntityDir, entity:GetDirectionVector(1));
 	vEntityDir.z = 0;
 	NormalizeVector(vEntityDir);
-	return dotproduct3d(vEntityDir, targetDirection) <= math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
+
+	local prod1 = dotproduct3d(vEntityDir, targetDirection)
+	local ang2 = math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
+	Log("Rot: %f <= %f", prod1, ang2)
+	return prod1 <= ang2
 end

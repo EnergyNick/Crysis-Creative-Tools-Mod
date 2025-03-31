@@ -106,7 +106,8 @@ function StateManagerIteration(state)
 
     if (not state.enableBehavior) then return end
 
-    if (not state.entity or state.entity:IsDead()) then
+    local existingEntity = System.GetEntity(state.entity.id);
+    if (not existingEntity or existingEntity:IsDead()) then
         state:CompleteBehavior()
         return
     end

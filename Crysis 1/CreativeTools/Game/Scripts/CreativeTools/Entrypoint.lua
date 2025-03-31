@@ -3,7 +3,7 @@ Script.ReloadScript("Scripts/CreativeTools/Tools/SpawnTool.lua");
 Script.ReloadScript("Scripts/CreativeTools/Tools/ReinforcementsTool.lua");
 
 
-function Player:OnActionCreativeTools(action)
+function Player:OnActionCreativeTools(action, activation)
 
     if self:IsUsingSpawnToolNow() then
         -- TODO: Remove after tests
@@ -14,11 +14,11 @@ function Player:OnActionCreativeTools(action)
         --     self.debugSave = save
         -- end
         local spawnTool = self:GetOrInitSpawnTool()
-        spawnTool:OnAction(action)
+        spawnTool:OnAction(action, activation)
 
     elseif self:IsUsingReinforcementsToolNow() then
         local reinforcementTool = self:GetOrInitReinforcementsTool()
-        reinforcementTool:OnAction(action)
+        reinforcementTool:OnAction(action, activation)
     end
 end
 

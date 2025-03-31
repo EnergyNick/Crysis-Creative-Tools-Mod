@@ -161,6 +161,17 @@ end
 
 function DestroyEntity(entity)
 
+	if entity.Seats then
+		for _, seat in pairs(entity.Seats) do
+			if (seat.passengerId) then
+				local member = System.GetEntity(seat.passengerId);
+				if (member ~= nil) then
+					DestroyEntity(member)
+				end
+			end
+		end
+	end
+
 	if entity.RemoveActor then
 		entity:RemoveActor()
 		return

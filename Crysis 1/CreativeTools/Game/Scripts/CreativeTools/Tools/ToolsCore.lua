@@ -1,7 +1,7 @@
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/BehaviorsCatalog.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/Utils/TableManagementUtils.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/EntityPresetTemplates.lua");
-Script.ReloadScript("SCRIPTS/CreativeTools/Utils/EntityHelpers.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/Utils/AllHelpers.lua");
 
 
 local GlobalProperties = {
@@ -25,6 +25,45 @@ UserTool = {
 }
 
 
+---------------------------------------------------------------------------------------------------------
+-- Internal functions
+
+
+function UserTool:PlayerMuzzleTrace(currentItemPreset)
+	local rayFilter = ent_all;
+	local rayLimit = currentItemPreset.maxDistanceOverride or GlobalProperties.maxDistance;
+
+	local direction = g_Vectors.temp_v1;
+	local cameraDirection = System.GetViewCameraDir()
+	CopyVector(direction, cameraDirection);
+	ScaleVectorInPlace(direction, rayLimit);
+
+	local position = g_Vectors.temp_v2;
+	self.player.actor:GetHeadPos(position);
+
+	local hits = Physics.RayWorldIntersection(position,direction,2,rayFilter,self.player.id,nil,g_HitTable);
+
+	local minDistanceToSpawn = currentItemPreset.minDistanceOverride or GlobalProperties.minDistance
+	if (hits == 0 or g_HitTable[1].dist < minDistanceToSpawn) then
+		return nil;
+	end
+
+	local data = {
+		position = g_HitTable[1].pos,
+		entity = g_HitTable[1].entity,
+		distance = g_HitTable[1].dist
+	}
+	return data;
+end
+
+function UserTool:getNewIndexForSpawnedEntity()
+	local res = self.creationIndexSequence
+	self.creationIndexSequence = res + 1
+	return res
+end
+
+---------------------------------------------------------------------------------------------------------
+-- Internal spawn functions
 
 function ApplyEntityCustomizations(entity, spawnInfo)
 	if (spawnInfo.class == "US_vtol") then
@@ -64,6 +103,7 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 
 	if spawnInfo.crew then
 		local crewNames = {}
+		local seatIndexOffset = 0
 		for i, currentItem in pairs(spawnInfo.crew) do
 			local position = entity:GetPos();
 			position.x = position.x + 5 * i
@@ -76,7 +116,11 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 
 			if(subEntity) then
 				ApplyEntityCustomizations(subEntity, currentItem)
-				EnterVehicle(subEntity, entity, i, true)
+
+				if spawnInfo.playerAsCrewSeatIndex and spawnInfo.playerAsCrewSeatIndex == i then
+					seatIndexOffset = 1
+				end
+				EnterVehicle(subEntity, entity, i + seatIndexOffset, true)
 
 				local entityName = subEntity:GetName()
 				table.insert(crewNames, entityName)
@@ -90,39 +134,6 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 	if (spawnInfo.behavior) then
 		RunBehaviorByName(spawnInfo.behavior, entity, self.player)
 	end
-end
-
-function UserTool:PlayerMuzzleTrace(currentItemPreset)
-	local rayFilter = ent_all;
-	local rayLimit = currentItemPreset.maxDistanceOverride or GlobalProperties.maxDistance;
-
-	local direction = g_Vectors.temp_v1;
-	local cameraDirection = System.GetViewCameraDir()
-	CopyVector(direction, cameraDirection);
-	ScaleVectorInPlace(direction, rayLimit);
-
-	local position = g_Vectors.temp_v2;
-	self.player.actor:GetHeadPos(position);
-
-	local hits = Physics.RayWorldIntersection(position,direction,2,rayFilter,self.player.id,nil,g_HitTable);
-
-	local minDistanceToSpawn = currentItemPreset.minDistanceOverride or GlobalProperties.minDistance
-	if (hits == 0 or g_HitTable[1].dist < minDistanceToSpawn) then
-		return nil;
-	end
-
-	local data = {
-		position = g_HitTable[1].pos,
-		entity = g_HitTable[1].entity,
-		distance = g_HitTable[1].dist
-	}
-	return data;
-end
-
-function UserTool:getNewIndexForSpawnedEntity()
-	local res = self.creationIndexSequence
-	self.creationIndexSequence = res + 1
-	return res
 end
 
 function UserTool:SpawnEntity(spawnPoint, currentItemPreset, orientation)
@@ -188,6 +199,67 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 	return entity
 end
 
+---------------------------------------------------------------------------------------------------------
+-- Pre-defined actions with HUD integration
+
+function UserTool:SpawnCurrentSelectedPresetEntity()
+	local currentPreset = GetCurrentElementOrReset(self)
+	if not currentPreset then
+		HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
+		return
+	end
+
+	local hit = self:PlayerMuzzleTrace(currentPreset)
+
+	if (not hit) then
+		HUD.HitIndicator();
+		return;
+	end
+
+	local entity = self:SpawnEntityWithPositionImprovements(hit.position, currentPreset)
+
+	if (entity) then
+		local newEntitiesGroup = {
+			[1] = entity:GetName()
+		}
+
+		ApplyEntityCustomizations(entity, currentPreset)
+		self:EntityAdditionalActions(entity, hit.position, currentPreset, newEntitiesGroup)
+
+		table.insert(self.spawnedEntityNamesPool, newEntitiesGroup)
+
+		HUD.DrawStatusText("Spawned ["..currentPreset.name.."]");
+	else
+		HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 4, 400, 275, { x=1, y=0, z=0});
+	end
+end
+
+function UserTool:RemoveLastSpawnedEntityGroup()
+	local lastIndex = count(self.spawnedEntityNamesPool)
+
+	if (lastIndex == 0) then
+		HUD.HitIndicator();
+		return;
+	end
+
+	local lastEntityGroup = self.spawnedEntityNamesPool[lastIndex]
+	table.remove(self.spawnedEntityNamesPool, lastIndex)
+	for i, name in pairs(lastEntityGroup) do
+		local toDelete = System.GetEntityByName(name);
+		if toDelete and toDelete.id then
+			DestroyEntity(toDelete)
+		end
+	end
+
+	local countOfDeleted = count(lastEntityGroup)
+	if countOfDeleted == 1 then
+		HUD.DrawStatusText("Removed entity");
+	elseif countOfDeleted > 1 then
+		HUD.DrawStatusText("Removed group with "..tostring(countOfDeleted).." entities");
+	end
+end
+
+-- Preset functions
 function UserTool:ShowSelectedItem(showIfPresetIsInvalid)
 	local element = GetCurrentElementOrReset(self)
 	if not element then
@@ -204,10 +276,53 @@ function UserTool:ShowSelectedItem(showIfPresetIsInvalid)
 	HUD.DisplayBigOverlayFlashMessage(message, 2, 400, 375, { x=1, y=1, z=1 });
 end
 
-function UserTool:OnAction(action)
+
+function UserTool:ChangeToNextElementInPreset()
+	IncrementElementIndexCycled(self)
+	local current = GetCurrentElement(self)
+
+	if current then
+		HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
+	else
+		LogWarning("Empty elements")
+		ResetCategoryAndIndex(self)
+	end
+end
+
+function UserTool:ChangeToNextCategoryInPreset()
+	IncrementCategoryIndexCycled(self)
+	local current = GetCurrentCategory(self)
+
+	if current then
+		HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
+	else
+		LogWarning("Empty categories")
+		ResetCategoryAndIndex(self)
+	end
+end
+
+function UserTool:ChangeToNextGroupInPreset()
+	SwitchToNextGroupCycled(self)
+	local current = GetCurrentGroup(self)
+
+	if current then
+		HUD.DisplayBigOverlayFlashMessage("Switch group to ["..current.name.."]", 2, 400, 375, { x=0, y=0.69, z=1 });
+	else
+		LogWarning("Empty groups")
+		ResetCategoryAndIndex(self)
+	end
+end
+
+---------------------------------------------------------------------------------------------------------
+-- Interface actions
+
+function UserTool:OnAction(action, activation)
 	local onAction = self.actions[action]
-	if (onAction) then
+	local onActionWithActivation = self.actionsWithActivation[action]
+	if (activation == "press" and onAction) then
 		onAction(self)
+	elseif onActionWithActivation then
+		onActionWithActivation(self, activation)
 	end
 end
 
@@ -312,11 +427,12 @@ local function getEntitiesPresets(spawnList)
 	return presetsCopy
 end
 
-function CreateUserTool(toolName, actionList, player, spawnList)
+function CreateUserTool(toolName, actionList, actionWithActivationList, player, spawnList)
 	local tool = CopyTableWithMetadata(UserTool, nil)
 	tool.toolName = toolName
 	tool.player = player
-	tool.actions = actionList
+	tool.actions = actionList or {}
+	tool.actionsWithActivation = actionWithActivationList or {}
 	tool.groups = getEntitiesPresets(spawnList)
 	return tool
 end

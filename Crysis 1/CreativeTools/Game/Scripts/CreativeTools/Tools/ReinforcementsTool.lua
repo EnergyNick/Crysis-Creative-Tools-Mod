@@ -4,106 +4,47 @@ Script.ReloadScript("SCRIPTS/CreativeTools/LIST_ReinforcementsTool.lua");
 
 local toolFieldName = 'reinforcementsTool'
 
-local ToolActions = {
-	["attack1"] = function (self)
-		local currentPreset = GetCurrentElementOrReset(self)
-		if not currentPreset then
-			HUD.DisplayBigOverlayFlashMessage("Invalid spawn preset, not found any entities to spawn", 4, 400, 275, { x=1, y=0, z=0});
+local ToolActionsWithActivations = {
+	["attack1"] = function (self, activation)
+		if activation == "release" and self.spawnProgressBarCancel then
+			self.spawnProgressBarCancel()
 			return
 		end
 
-		local hit = self:PlayerMuzzleTrace(currentPreset)
-
-		if (not hit) then
-			HUD.HitIndicator();
-			return;
+		local onFinishFunc = function ()
+			self:SpawnCurrentSelectedPresetEntity()
 		end
-
-		local entity = self:SpawnEntityWithPositionImprovements(hit.position, currentPreset)
-
-		if (entity) then
-			local newEntitiesGroup = {
-				[1] = entity:GetName()
-			}
-
-			ApplyEntityCustomizations(entity, currentPreset)
-			self:EntityAdditionalActions(entity, hit.position, currentPreset, newEntitiesGroup)
-
-			table.insert(self.spawnedEntityNamesPool, newEntitiesGroup)
-
-			HUD.DrawStatusText("Spawned ["..currentPreset.name.."]");
-		else
-			HUD.DisplayBigOverlayFlashMessage("Error: entity not spawned", 4, 400, 275, { x=1, y=0, z=0});
-		end
+		self.spawnProgressBarCancel = StarProgressBar("Reinforcements calling", onFinishFunc, 110)
 	end,
+}
+
+local ToolActions = {
 
 	["firemode"] = function (self)
-		local lastIndex = count(self.spawnedEntityNamesPool)
-
-		if (lastIndex == 0) then
-			HUD.HitIndicator();
-			return;
-		end
-
-		local lastEntityGroup = self.spawnedEntityNamesPool[lastIndex]
-		table.remove(self.spawnedEntityNamesPool, lastIndex)
-		for i, name in pairs(lastEntityGroup) do
-			local toDelete = System.GetEntityByName(name);
-			if toDelete and toDelete.id then
-				DestroyEntity(toDelete)
-			end
-		end
-
-		local countOfDeleted = count(lastEntityGroup)
-		if countOfDeleted == 1 then
-			HUD.DrawStatusText("Removed entity");
-		elseif countOfDeleted > 1 then
-			HUD.DrawStatusText("Removed group with "..tostring(countOfDeleted).." entities");
-		end
+		self:RemoveLastSpawnedEntityGroup()
 	end,
 
 	["hud_openchat"] = function (self)
 		local prevValue = self.player.followingDisabled
 		self.player.followingDisabled = prevValue == nil or prevValue == false
-		local actionName = self.player.followingDisabled and "Disabled" or "Enabled"
-		HUD.DisplayBigOverlayFlashMessage(""..actionName.." following player of friendly entities", 2, 400, 375, { x=1, y=1, z=1 });
+		local actionName = self.player.followingDisabled and "disabled" or "enabled"
+		local message = string.format("Globally %s following player for friendly entities, spawned as follower", actionName);
+		HUD.DisplayBigOverlayFlashMessage(message, 3, 400, 375, { x=1, y=1, z=1 });
 	end,
 
-	["zoom"] = function (self)
-		IncrementElementIndexCycled(self)
-		local current = GetCurrentElement(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch entity to ["..current.name.."]", 2, 400, 375, { x=0.5, y=0.8, z=0.9});
-		else
-			LogWarning("Empty elements")
-			ResetCategoryAndIndex(self)
-		end
+	["hud_openteamchat"] = function (self)
+		local prevValue = self.player.followingDisabled
+		self.player.followingDisabled = prevValue == nil or prevValue == false
+		local actionName = self.player.followingDisabled and "disabled" or "enabled"
+		local message = string.format("Globally %s following player for friendly entities, spawned as follower", actionName);
+		HUD.DisplayBigOverlayFlashMessage(message, 3, 400, 375, { x=1, y=1, z=1 });
 	end,
 
-	["reload"] = function (self)
-		IncrementCategoryIndexCycled(self)
-		local current = GetCurrentCategory(self)
+	["zoom"] = function (self) self:ChangeToNextElementInPreset() end,
 
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch category to ["..current.name.."]", 2, 400, 375, { x=0.3, y=1, z=0.3 });
-		else
-			LogWarning("Empty categories")
-			ResetCategoryAndIndex(self)
-		end
-	end,
+	["reload"] = function (self) self:ChangeToNextCategoryInPreset() end,
 
-	["special"] = function (self)
-		SwitchToNextGroupCycled(self)
-		local current = GetCurrentGroup(self)
-
-		if current then
-			HUD.DisplayBigOverlayFlashMessage("Switch group to ["..current.name.."]", 2, 400, 375, { x=0, y=0.69, z=1 });
-		else
-			LogWarning("Empty groups")
-			ResetCategoryAndIndex(self)
-		end
-	end,
+	["special"] = function (self) self:ChangeToNextGroupInPreset() end,
 
 	["use"] = function (self) self:ShowSelectedItem(true) end,
 
@@ -133,7 +74,7 @@ end
 
 function Player:GetOrInitReinforcementsTool()
 	if not self[toolFieldName] then
-		local tool = CreateUserTool(toolFieldName, ToolActions, self, ReinforcementSpawnList)
+		local tool = CreateUserTool(toolFieldName, ToolActions, ToolActionsWithActivations, self, ReinforcementSpawnList)
 		self[toolFieldName] = tool
 	end
 	return self[toolFieldName]

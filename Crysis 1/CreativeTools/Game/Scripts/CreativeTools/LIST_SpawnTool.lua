@@ -24,7 +24,7 @@ EntitySpawnList =
 		{
 			name = "Vehicles",
 			{
-				name = "vtol",
+				name = "VTOL",
 				class = "US_vtol",
 				archetype = nil,
 				zOffset = 4
@@ -36,31 +36,31 @@ EntitySpawnList =
 			-- 	zOffset = 4
 			-- },
 			{
-				name = "us-tank",
+				name = "Tank",
 				class = "US_tank",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "us-tank-gauss",
+				name = "Tank with Gauss",
 				class = "US_tank",
 				archetype = "Vehicles.Land.US_tank_wGauss",
 				zOffset = 0.5
 			},
 			{
-				name = "us-apc",
+				name = "APC",
 				class = "US_apc",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "us-hovercraft",
+				name = "Hovercraft",
 				class = "US_hovercraft",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "us-ltv",
+				name = "LTV",
 				class = "US_ltv",
 				archetype = nil,
 				zOffset = 0.5
@@ -111,7 +111,7 @@ EntitySpawnList =
 			},
 			{
 				name = "US solder - Gauss",
-				templateKey = "us-rifleman-2",
+				templateKey = "us-sniper-gauss",
 				behavior = "human_following"
 			},
 			{
@@ -124,7 +124,7 @@ EntitySpawnList =
 		{
 			name = "US Vehicles with crew",
 			{
-				name = "vtol",
+				name = "VTOL",
 				class = "US_vtol",
 				zOffset = 50,
 				behavior = "vehicle_following",
@@ -136,7 +136,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "us-tank",
+				name = "Tank",
 				class = "US_tank",
 				behavior = "vehicle_following",
 				maxDistanceOverride = 50,
@@ -147,7 +147,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "us-tank-gauss",
+				name = "Tank with Gauss",
 				class = "US_tank",
 				archetype = "Vehicles.Land.US_tank_wGauss",
 				behavior = "vehicle_following",
@@ -159,7 +159,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "us-apc",
+				name = "APC",
 				class = "US_apc",
 				behavior = "vehicle_following",
 				maxDistanceOverride = 50,
@@ -169,7 +169,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "us-ltv",
+				name = "LTV",
 				class = "US_ltv",
 				behavior = "vehicle_following",
 				maxDistanceOverride = 50,
@@ -188,43 +188,43 @@ EntitySpawnList =
 		{
 			name = "Vehicles",
 			{
-				name = "helicopter",
+				name = "Helicopter",
 				class = "Asian_helicopter",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-tank",
+				name = "Tank",
 				class = "Asian_tank",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-apc",
+				name = "APC",
 				class = "Asian_apc",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-aircraftgun",
+				name = "Anti Aircraft Artery",
 				class = "Asian_aaa",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-track",
+				name = "Truck",
 				class = "Asian_truck",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-ltv",
+				name = "LTV",
 				class = "Asian_ltv",
 				archetype = nil,
 				zOffset = 0.5
 			},
 			{
-				name = "as-boat",
+				name = "Patrol Boat",
 				class = "Asian_patrolboat",
 				archetype = nil,
 				zOffset = 0.5
@@ -258,7 +258,7 @@ EntitySpawnList =
 		{
 			name = "Vehicles with crew",
 			{
-				name = "helicopter",
+				name = "Helicopter",
 				class = "Asian_helicopter",
 				maxDistanceOverride = 60,
 				crew =
@@ -268,7 +268,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-tank",
+				name = "Tank",
 				class = "Asian_tank",
 				maxDistanceOverride = 60,
 				crew =
@@ -278,7 +278,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-apc",
+				name = "APC",
 				class = "Asian_apc",
 				maxDistanceOverride = 60,
 				crew =
@@ -287,7 +287,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-aircraftgun",
+				name = "Anti Aircraft Artery",
 				class = "Asian_aaa",
 				maxDistanceOverride = 60,
 				crew =
@@ -296,7 +296,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-track",
+				name = "Truck",
 				class = "Asian_truck",
 				maxDistanceOverride = 60,
 				crew =
@@ -307,7 +307,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-ltv",
+				name = "LTV",
 				class = "Asian_ltv",
 				maxDistanceOverride = 60,
 				crew =
@@ -318,7 +318,7 @@ EntitySpawnList =
 				}
 			},
 			{
-				name = "as-boat",
+				name = "Patrol Boat",
 				class = "Asian_patrolboat",
 				maxDistanceOverride = 60,
 				crew =

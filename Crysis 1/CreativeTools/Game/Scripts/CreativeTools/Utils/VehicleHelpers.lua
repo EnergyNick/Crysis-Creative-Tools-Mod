@@ -112,17 +112,22 @@ local function toFlyIteration(data)
 		Script.SetTimer(500, toFlyIteration, data)
 		System.Log("["..(data.vehicle:GetName()).."]: Order fly up")
 	else
-		local direction = {}
-		ZeroVector(direction)
 		if data.vehicle:GetSpeed() > 5 then
+			local direction = {}
 			CopyVector(direction, data.vehicle:GetDirectionVector(2))
 			ScaleVectorInPlace(direction, -0.25)
+			AI.SetForcedNavigation(data.vehicle.id, direction)
+
 			Script.SetTimer(500, toFlyIteration, data)
 			System.Log("["..(data.vehicle:GetName()).."]: Order slow down")
 		else
+			AI.SetForcedNavigation(data.vehicle.id, g_Vectors.v000)
 			System.Log("["..(data.vehicle:GetName()).."]: Order stop")
+
+			if data.afterTakeOff then
+				data.afterTakeOff()
+			end
 		end
-		AI.SetForcedNavigation(data.vehicle.id, direction)
 	end
 end
 
@@ -154,23 +159,19 @@ function SetNavigationToRotateAndGetIsRotated(entity, targetPosition, currentToT
 end
 
 ---@return boolean Result Is currently crossed target point
-function SetNavigationToFastFlyAndGetIsCrossed(entity, positionVector, currentToTargetDirection, minimalZOffset)
-
-	if not currentToTargetDirection then
-		currentToTargetDirection = entity:GetDirectionVector(1)
-	end
-
-	local vRotateDir = SubVectorsNormalizedOnXY(positionVector, entity:GetPos())
+function SetNavigationToFastFlyAndGetIsCrossed(entity, targetPosition, currentToTargetDirection, minimalZOffset)
+	local vRotateDir = SubVectorsNormalizedOnXY(targetPosition, entity:GetPos())
 	local scalarBetweenDirections = dotproduct3d(vRotateDir, currentToTargetDirection)
+	Log("Fast fly dot: %f", scalarBetweenDirections)
 	local isCrossedSuccessfully = scalarBetweenDirections < 0
 
-	local navigationDirection = g_Vectors.v000
+	local navigationDirection = {}
+	ZeroVector(navigationDirection)
 	if not isCrossedSuccessfully then
-		navigationDirection = g_Vectors.temp_v1;
 		FastScaleVector(navigationDirection, currentToTargetDirection, 65.0);
 
 		local entityPos = entity:GetPos()
-		if entityPos.z < positionVector.z then
+		if entityPos.z < targetPosition.z then
 			navigationDirection.z = 3.0
 		else
 			if minimalZOffset then
@@ -212,7 +213,8 @@ local function ExitByChainAndGoToRandomPoint(data)
 	vMyFwd.z = 0.0;
 	NormalizeVector(vMyFwd);
 
-	local deltaAngle = data.seatIndex * 25 * (3.1416 / 180.0);
+	local directionSign = random(1, 2) == 1 and 1 or -1
+	local deltaAngle = directionSign * data.seatIndex * 25 * (3.1416 / 180.0);
 	local vMyFwdRot = g_Vectors.temp_v2;
 	RotateVectorAroundR(vMyFwdRot, vMyFwd, data.entity:GetDirectionVector(2), deltaAngle);
 
@@ -223,13 +225,39 @@ local function ExitByChainAndGoToRandomPoint(data)
 
 	-- TODO: Add logic of trace to find, if entity can go to resultPosition, either make distance shorter
 	OrderEntityGoToPosition(data.entity, resultPosition)
+	local function invokeExit()
+		data.exitAction(data.entity)
+	end
+
+	Script.SetTimer(6000, invokeExit)
+
+	-- local distanceToGo = random(3, 6)
+	-- NormalizeVector(vMyFwdRot)
+	-- -- local resultPosition = g_Vectors.temp_v3;
+	-- ScaleVectorInPlace(vMyFwdRot, 15);
+	-- -- FastSumVectors(resultPosition, data.entity:GetPos(), vMyFwdRot);
+
+	-- -- TODO: Add logic of trace to find, if entity can go to resultPosition, either make distance shorter
+	-- -- OrderEntityGoToPosition(data.entity, resultPosition)
+
+	-- Log("Before stop")
+	-- AI.SetForcedNavigation(data.entity.id, vMyFwdRot)
+
+	-- local function stopGoingAction()
+	-- 	AI.SetForcedNavigation(data.entity.id, g_Vectors.v000)
+	-- 	data.exitAction(data.entity)
+	-- 	Log("Exit action called")
+	-- end
+	-- local timeOfGo = random(6, 10)*1000
+	-- Script.SetTimer(timeOfGo, stopGoingAction)
 end
 
-function StartExitByChainAndGoToRandomPointAsync(entity, seatIndex, previousPassenger, initialDelay)
+function StartExitByChainAndGoToRandomPointAsync(entity, seatIndex, previousPassenger, afterExitAction, initialDelay)
 	local data = {
 		entity = entity,
 		seatIndex = seatIndex,
 		previousPassenger = previousPassenger,
+		exitAction = afterExitAction,
 		isExited = false
 	}
 

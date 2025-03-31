@@ -514,8 +514,9 @@ function Player:OnAction(action, activation, value)
 		-- HUD.DrawStatusText("before")
 		-- local value = AI.IsPointInFlightRegion({x=1840, y=2180, z=310})
 		-- HUD.DrawStatusText("res = "..tostring(value))
-		self:OnActionCreativeTools(action)
+		-- self:OnActionCreativeTools(action, activation)
 	end
+	self:OnActionCreativeTools(action, activation)
 
 	if (action == "use" or action == " xi_use") then	
 		self:UseEntity( self.OnUseEntityId, self.OnUseSlot, activation == "press");

@@ -3,6 +3,7 @@ Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/HumanFollowerBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineFollowerBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineLandingBehavior.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/AircraftGoAwayBehavior.lua");
 
 
 function RunBehaviorByName(behaviorName, entity, player)
@@ -25,7 +26,7 @@ function SaveCustomBehaviorManagers(player, save)
     end
 
     local behaviorSaves = {}
-    for key, behavior in pairs(player.customBehaviorManagers) do
+    for _, behavior in pairs(player.customBehaviorManagers) do
         if behavior then
             local data = behavior:GetSave()
             if data then
@@ -123,9 +124,25 @@ BehaviorsCatalog[followMachineType] = {
 
 
 -----------------------------------------------------------------------------------------
---- Landing aircraft with troopers after with following 
+--- Go away behavior aircraft
 
-local followLandType = 'vehicle_landing_after_following'
+local aircraftGoAwayType = 'aircraft_go_away'
+
+BehaviorsCatalog[aircraftGoAwayType] = {
+    Spawn = function(entity, player)
+        local awayPosition = entity.goAwayPosition or entity.spawnInfo.point
+        local manager = CreateAndRunAircraftGoAwayManager(aircraftGoAwayType, entity, awayPosition)
+        safeInsertManager(player, manager)
+    end,
+    Load = function(behaviorSave, player)
+        local manager = LoadAndRunAircraftGoAwayManager(aircraftGoAwayType, behaviorSave)
+        safeInsertManager(player, manager)
+    end
+}
+
+
+-----------------------------------------------------------------------------------------
+--- Landing aircraft with troopers
 
 local function getActionForVehicleToFollow(player)
     local actionForVehicle = function(eventEntity)
@@ -134,30 +151,62 @@ local function getActionForVehicleToFollow(player)
         local machineManager = CreateAndRunMachineFollowerManager(followMachineType, eventEntity, player)
         safeInsertManager(player, machineManager)
         SetGunnerIgnorant(eventEntity, 0)
-
-        for i, crewName in pairs(eventEntity.spawnedCrewNames) do
-            -- Skip driver and gunner
-            if i > 2 then
-                local crewEntity = System.GetEntityByName(crewName)
-                if crewEntity then
-                    local manager = CreateAndRunHumanFollowerManager(followHumanType, crewEntity, player)
-                    safeInsertManager(player, manager)
-                end
-            end
-        end
     end
 
     return actionForVehicle
 end
 
-BehaviorsCatalog[followLandType] = {
+local function getActionForVehicleToGoAway(player)
+    local actionForVehicle = function(eventEntity)
+        local machineManager = CreateAndRunAircraftGoAwayManager(aircraftGoAwayType, eventEntity, eventEntity.spawnInfo.point)
+        safeInsertManager(player, machineManager)
+    end
+
+    return actionForVehicle
+end
+
+local function getActionForReinforcement(player)
+    local function actionForHuman(entity)
+        local manager = CreateAndRunHumanFollowerManager(followHumanType, entity, player)
+        safeInsertManager(player, manager)
+    end
+
+    return actionForHuman
+end
+
+
+local aircraftLandTypeForFollow = 'aircraft_landing_with_reinforcements_after_follow'
+
+BehaviorsCatalog[aircraftLandTypeForFollow] = {
     Spawn = function(entity, player)
-        local manager = CreateAndRunMachineLandingManager(followLandType, entity, entity.spawnInfo.hitPoint, getActionForVehicleToFollow(player))
+        local vehicleAction = getActionForVehicleToFollow(player)
+        local humanAction = getActionForReinforcement(player)
+        local manager = CreateAndRunMachineLandingManager(aircraftLandTypeForFollow, entity, entity.spawnInfo.hitPoint, vehicleAction, humanAction)
         safeInsertManager(player, manager)
     end,
 
     Load = function (behaviorSave, player)
-        local manager = LoadAndRunMachineLandingManager(followLandType, behaviorSave, getActionForVehicleToFollow(player))
+        local vehicleAction = getActionForVehicleToFollow(player)
+        local humanAction = getActionForReinforcement(player)
+        local manager = LoadAndRunMachineLandingManager(aircraftLandTypeForFollow, behaviorSave, vehicleAction, humanAction)
+        safeInsertManager(player, manager)
+    end
+}
+
+local aircraftLandTypeAndGoAway = 'aircraft_landing_with_reinforcements_after_go_away'
+
+BehaviorsCatalog[aircraftLandTypeAndGoAway] = {
+    Spawn = function(entity, player)
+        local vehicleAction = getActionForVehicleToGoAway(player)
+        local humanAction = getActionForReinforcement(player)
+        local manager = CreateAndRunMachineLandingManager(aircraftLandTypeAndGoAway, entity, entity.spawnInfo.hitPoint, vehicleAction, humanAction)
+        safeInsertManager(player, manager)
+    end,
+
+    Load = function (behaviorSave, player)
+        local vehicleAction = getActionForVehicleToGoAway(player)
+        local humanAction = getActionForReinforcement(player)
+        local manager = LoadAndRunMachineLandingManager(aircraftLandTypeAndGoAway, behaviorSave, vehicleAction, humanAction)
         safeInsertManager(player, manager)
     end
 }
