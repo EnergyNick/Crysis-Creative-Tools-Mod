@@ -510,12 +510,12 @@ function Player:OnAction(action, activation, value)
 	-- HUD.DrawStatusText("Action ["..action.."] {"..activation.."} ("..tostring(value)..")")
 
 	-- Library logic to initialize spawn tool behavior
-	if activation == "press" then
+	-- if activation == "press" then
 		-- HUD.DrawStatusText("before")
 		-- local value = AI.IsPointInFlightRegion({x=1840, y=2180, z=310})
 		-- HUD.DrawStatusText("res = "..tostring(value))
 		-- self:OnActionCreativeTools(action, activation)
-	end
+	-- end
 	self:OnActionCreativeTools(action, activation)
 
 	if (action == "use" or action == " xi_use") then	

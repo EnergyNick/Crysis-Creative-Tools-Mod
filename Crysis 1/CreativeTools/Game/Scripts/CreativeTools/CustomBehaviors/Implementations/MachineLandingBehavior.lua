@@ -5,7 +5,7 @@ Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 local behaviorOptions =
 {
 	distanceAroundToLandingPoint = 8,
-	distanceAroundToLandingPointToStopGoUp = 40,
+	distanceAroundToLandingPointToStopGoUp = 80,
   distanceToLandPointToLowerSpeed = 140,
 
   terrainOffset = 50,
@@ -102,7 +102,6 @@ local behaviorSetup =
     end,
 
     Landing = function (state)
-
       -- local targetPos = state.entity:GetPos();
       -- local targetDir = g_Vectors.temp_v1;
       -- targetDir.x = 0;
@@ -124,7 +123,6 @@ local behaviorSetup =
 
       local distance = System.GetTerrainElevation(myPos);
       distance = myPos.z - distance;
-      -- HUD.DrawStatusText("Distance to terrain = "..tostring(distance))
       if(distance < 8) then
         state:Landed()
         return 2000
@@ -165,6 +163,7 @@ local behaviorSetup =
         for i = count(toExit), 1, -1 do
             local member = toExit[i]
             if not member.actor:IsPlayer() then
+              member:DrawWeaponNow();
               StartExitByChainAndGoToRandomPointAsync(member, i, previous, state.reinforcementFinishAction)
               previous = member
             end

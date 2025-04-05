@@ -14,7 +14,6 @@
 		<thirdperson name="objects/weapons/equipment/Portable_Radar/portable_radar_tp.cgf" angles="0,0,0" />
 	</geometry>
 	<actions>
-
 		<action name="select">
 			<animation target="firstperson" name="select_01" />
 			<animation target="owner" name="select" />

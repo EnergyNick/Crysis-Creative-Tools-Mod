@@ -20,9 +20,7 @@ local ToolActionsWithActivations = {
 
 local ToolActions = {
 
-	["firemode"] = function (self)
-		self:RemoveLastSpawnedEntityGroup()
-	end,
+	["firemode"] = function (self) self:RemoveLastSpawnedEntityGroup() end,
 
 	["hud_openchat"] = function (self)
 		local prevValue = self.player.followingDisabled

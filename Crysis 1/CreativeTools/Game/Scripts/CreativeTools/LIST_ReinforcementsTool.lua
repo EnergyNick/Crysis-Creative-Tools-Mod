@@ -77,6 +77,7 @@ ReinforcementSpawnList =
 					{ templateKey = "us-sniper-1" 			},
 					{ templateKey = "us-sniper-gauss-law" 	},
 					{ templateKey = "us-rifleman-3b" 		},
+					{ templateKey = "us-rifleman-5b-heavy" 	},
 				}
 			},
 		},

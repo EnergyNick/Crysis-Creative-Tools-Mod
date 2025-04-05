@@ -3,14 +3,12 @@ Script.ReloadScript("Scripts/common.lua");
 local function progressBarIteration(data)
 	if data.isAbortCalled then
 		HUD.SetProgressBar(false, -1, "")
-		Log("Progress bar aborted")
 		return
 	end
 	HUD.SetProgressBar(true, data.count, data.name)
 
 	if data.count >= 100 then
 		HUD.SetProgressBar(false, -1, "")
-		Log("Finished progress bar")
 		data.onFinishAction()
 	else
 		data.count = data.count + (data.step)

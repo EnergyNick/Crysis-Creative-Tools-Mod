@@ -65,26 +65,15 @@ end
 ---------------------------------------------------------------------------------------------------------
 -- Internal spawn functions
 
-function ApplyEntityCustomizations(entity, spawnInfo)
-	if (spawnInfo.class == "US_vtol") then
-		entity.vehicle:SetAmmoCount("a2ahomingmissile", 12);
-	end
-
-	CheckWeaponAttachments(entity)
-
-	-- if spawnInfo then
-	-- 	ItemSystem.GiveItem("MOAR",entity.id);
-	-- 	ItemSystem.SetActorItemByName(entity.id,"LightMOAC",false);
-	-- end
-end
-
-function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEntitiesGroup)
-
-	entity.spawnedPosition = hitPosition
+function ApplyEntityCustomizations(entity, spawnInfo, player)
 
 	if spawnInfo.enablePhysics then
 		PhysicalizeEntity(entity)
 		Log("Physics "..(spawnInfo.enablePhysics and "enabled" or "disabled"))
+	end
+
+	if (spawnInfo.class == "US_vtol") then
+		entity.vehicle:SetAmmoCount("a2ahomingmissile", 12);
 	end
 
 	if spawnInfo.weaponAttachments then
@@ -97,13 +86,36 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 		end
 	end
 
+	CheckWeaponAttachments(entity)
+
+	if (spawnInfo.behavior) then
+		RunBehaviorByName(spawnInfo.behavior, entity, player)
+	end
+
+	-- if spawnInfo then
+	-- 	ItemSystem.GiveItem("MOAR",entity.id);
+	-- 	ItemSystem.SetActorItemByName(entity.id,"LightMOAC",false);
+	-- end
+end
+
+function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEntitiesGroup)
 	if spawnInfo.playerAsCrewSeatIndex then
 		EnterVehicle(self.player, entity, spawnInfo.playerAsCrewSeatIndex, true)
 	end
 
 	if spawnInfo.crew then
 		local crewNames = {}
-		local seatIndexOffset = 0
+		local takenSeats = {}
+		if spawnInfo.playerAsCrewSeatIndex then
+			takenSeats[spawnInfo.playerAsCrewSeatIndex] = true
+		end
+
+		if spawnInfo.reservedSeatIndexes then
+			for _, value in pairs(spawnInfo.reservedSeatIndexes) do
+				takenSeats[value] = true
+			end
+		end
+
 		for i, currentItem in pairs(spawnInfo.crew) do
 			local position = entity:GetPos();
 			position.x = position.x + 5 * i
@@ -115,12 +127,11 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 			local subEntity = self:SpawnEntity(position, currentItem, entity:GetDirectionVector(1))
 
 			if(subEntity) then
-				ApplyEntityCustomizations(subEntity, currentItem)
+				local seatIndex = GetFirstEmptyIndexFromOne(takenSeats)
+				takenSeats[seatIndex] = true
+				EnterVehicle(subEntity, entity, seatIndex, true)
 
-				if spawnInfo.playerAsCrewSeatIndex and spawnInfo.playerAsCrewSeatIndex == i then
-					seatIndexOffset = 1
-				end
-				EnterVehicle(subEntity, entity, i + seatIndexOffset, true)
+				ApplyEntityCustomizations(subEntity, currentItem, self)
 
 				local entityName = subEntity:GetName()
 				table.insert(crewNames, entityName)
@@ -129,10 +140,6 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 		end
 
 		entity.spawnedCrewNames = crewNames
-	end
-
-	if (spawnInfo.behavior) then
-		RunBehaviorByName(spawnInfo.behavior, entity, self.player)
 	end
 end
 
@@ -223,8 +230,8 @@ function UserTool:SpawnCurrentSelectedPresetEntity()
 			[1] = entity:GetName()
 		}
 
-		ApplyEntityCustomizations(entity, currentPreset)
 		self:EntityAdditionalActions(entity, hit.position, currentPreset, newEntitiesGroup)
+		ApplyEntityCustomizations(entity, currentPreset, self)
 
 		table.insert(self.spawnedEntityNamesPool, newEntitiesGroup)
 
@@ -234,19 +241,37 @@ function UserTool:SpawnCurrentSelectedPresetEntity()
 	end
 end
 
-function UserTool:RemoveLastSpawnedEntityGroup()
-	local lastIndex = count(self.spawnedEntityNamesPool)
-
+local function getNotEmptyEntityGroup(array, lastIndex)
 	if (lastIndex == 0) then
+		return nil
+	end
+
+	local existingCount = 0
+	local groupOfEntities = array[lastIndex]
+	for i, name in pairs(groupOfEntities) do
+		local toDelete = System.GetEntityByName(name);
+		if toDelete then
+			existingCount = existingCount + 1
+		end
+	end
+
+	if existingCount == 0 then
+		return getNotEmptyEntityGroup(array, lastIndex - 1)
+	end
+	return groupOfEntities
+end
+
+function UserTool:RemoveLastSpawnedEntityGroup()
+	local lastEntityGroup = getNotEmptyEntityGroup(self.spawnedEntityNamesPool, count(self.spawnedEntityNamesPool))
+
+	if (not lastEntityGroup) then
 		HUD.HitIndicator();
 		return;
 	end
 
-	local lastEntityGroup = self.spawnedEntityNamesPool[lastIndex]
-	table.remove(self.spawnedEntityNamesPool, lastIndex)
-	for i, name in pairs(lastEntityGroup) do
+	for _, name in pairs(lastEntityGroup) do
 		local toDelete = System.GetEntityByName(name);
-		if toDelete and toDelete.id then
+		if toDelete then
 			DestroyEntity(toDelete)
 		end
 	end
@@ -272,7 +297,7 @@ function UserTool:ShowSelectedItem(showIfPresetIsInvalid)
 	local groupName = GetCurrentGroup(self).name
 	local categoryName = GetCurrentCategory(self).name
 	local elementName = element.name
-	local message = string.format("Selected group %q, category %q, element %q", groupName, categoryName, elementName)
+	local message = string.format("Group %q, category %q, element %q", groupName, categoryName, elementName)
 	HUD.DisplayBigOverlayFlashMessage(message, 2, 400, 375, { x=1, y=1, z=1 });
 end
 

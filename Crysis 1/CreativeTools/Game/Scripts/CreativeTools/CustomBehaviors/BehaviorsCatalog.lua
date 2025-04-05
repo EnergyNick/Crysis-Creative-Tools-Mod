@@ -1,6 +1,7 @@
 Script.ReloadScript("SCRIPTS/HUD/Hud.lua");
 Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/HumanFollowerBehavior.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/HumanFighterBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineFollowerBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/MachineLandingBehavior.lua");
 Script.ReloadScript("SCRIPTS/CreativeTools/CustomBehaviors/Implementations/AircraftGoAwayBehavior.lua");
@@ -89,6 +90,21 @@ end
 
 BehaviorsCatalog = {}
 
+-----------------------------------------------------------------------------------------
+--- Fighting human 
+
+local fightingHumanType = 'human_fighting'
+
+BehaviorsCatalog[fightingHumanType] = {
+    Spawn = function(entity, player)
+        local manager = CreateAndRunHumanFighterManager(fightingHumanType, entity, player)
+        safeInsertManager(player, manager)
+    end,
+    Load = function(behaviorSave, player)
+        local manager = LoadAndRunHumanFighterManager(fightingHumanType, behaviorSave)
+        safeInsertManager(player, manager)
+    end
+}
 
 -----------------------------------------------------------------------------------------
 --- Follow human 
@@ -113,7 +129,7 @@ local followMachineType = 'vehicle_following'
 
 BehaviorsCatalog[followMachineType] = {
     Spawn = function(entity, player)
-        local manager = CreateAndRunMachineFollowerManager(followMachineType, entity, player)
+        local manager = CreateAndRunMachineFollowerManager(followMachineType, entity, player, true)
         safeInsertManager(player, manager)
     end,
     Load = function(behaviorSave, player)
@@ -148,7 +164,7 @@ local function getActionForVehicleToFollow(player)
     local actionForVehicle = function(eventEntity)
         TakeoffAirVehicle(eventEntity, 40)
 
-        local machineManager = CreateAndRunMachineFollowerManager(followMachineType, eventEntity, player)
+        local machineManager = CreateAndRunMachineFollowerManager(followMachineType, eventEntity, player, false)
         safeInsertManager(player, machineManager)
         SetGunnerIgnorant(eventEntity, 0)
     end

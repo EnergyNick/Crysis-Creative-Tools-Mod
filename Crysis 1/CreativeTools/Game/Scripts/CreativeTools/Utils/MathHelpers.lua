@@ -4,6 +4,17 @@ function VectorToString(vector)
 	return "x="..tostring(vector.x).." y="..tostring(vector.y).." z="..tostring(vector.z)
 end
 
+function GetFirstEmptyIndexFromOne(array)
+	local index = 1
+	for key, _ in pairs(array) do
+		if key - index >= 1 then
+			return index
+		end
+		index = index + 1
+	end
+	return index
+end
+
 function GetLengthBetweenPositions(first, second)
 	local diff = {};
 	CopyVector( diff, first );
@@ -107,7 +118,7 @@ function IsEntityRotatedXYToTargetMoreThan(entity, targetPosition, angleInDegree
 
 	local prod1 = dotproduct3d(vEntityDir, directionToTarget)
 	local ang2 = math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
-	Log("Tar: %f <= %f", prod1, ang2)
+	-- Log("Tar: %f <= %f", prod1, ang2)
 	return prod1 <= ang2
 end
 
@@ -119,6 +130,6 @@ function IsEntityXYDirectionRotatedMoreThan(entity, targetDirection, angleInDegr
 
 	local prod1 = dotproduct3d(vEntityDir, targetDirection)
 	local ang2 = math.cos(3.1416 * (angleInDegree * 1.0) / 180.0)
-	Log("Rot: %f <= %f", prod1, ang2)
+	-- Log("Rot: %f <= %f", prod1, ang2)
 	return prod1 <= ang2
 end

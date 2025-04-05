@@ -13,15 +13,14 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
             entityObj = System.GetEntityByName(managerSave.entityName)
             System.Log("["..typeKey.."]: Save name "..managerSave.entityName.." for "..typeKey)
         else
-            System.Log("$4 ["..typeKey.."]:  Invalid save for load entityName for"..typeKey)
+            System.Log("$4 ["..typeKey.."]: Invalid save for load entityName for"..typeKey)
         end
-
     end
 
     if not entityObj then
         System.Log("$4["..typeKey.."]: Error: invalid behavior initialization, can't found entity, skipping")
 
-        HUD.DisplayBigOverlayFlashMessage("Error: invalid behavior initialization, can't found entity, skipping", 
+        HUD.DisplayBigOverlayFlashMessage("Error: invalid behavior initialization, can't found entity, skipping",
         4, 400, 275,
         { x = 1, y = 0, z = 0 });
 
@@ -48,6 +47,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
 
     fsm.type = typeKey
     fsm.entity = entityObj
+    fsm.entity.behaviorType = typeKey
 
     fsm.Actions = preset.fsmStateActions
 

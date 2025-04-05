@@ -27,7 +27,7 @@ end
 
 local behaviorSetup =
 {
-  initialState = 'Normal',
+  initialState = 'Start',
 
   fsmTransitionEvents = {
     { name = 'Initialized',      from = 'Start',                     to = 'Normal'     },
@@ -42,8 +42,9 @@ local behaviorSetup =
   fsmStateActions =
   {
     Start = function (state)
-      if IsFlyingVehicles(state.entity) then
-          DisablePhysicsAndLaterEnabledWithUpPush(state.entity, 2000)
+      if state.needAircraftStartImpulseUp == true and IsFlyingVehicles(state.entity) then
+        Log("Push forced")
+        DisablePhysicsAndLaterEnabledWithUpPush(state.entity, 2000)
       end
 
       state:Initialized()
@@ -136,9 +137,10 @@ local behaviorSetup =
   end
 }
 
-function CreateAndRunMachineFollowerManager(typeKey, entity, target)
+function CreateAndRunMachineFollowerManager(typeKey, entity, target, needAircraftStartImpulseUp)
   local fsm = CreateStateManagerBasedOnPreset(typeKey, behaviorSetup, entity)
   fsm.target = target
+  fsm.needAircraftStartImpulseUp = needAircraftStartImpulseUp or false
 
 	HUD.AddEntityToRadar(entity.id);
 
@@ -153,6 +155,7 @@ function LoadAndRunMachineFollowerManager(typeKey, behaviorSave)
     return nil
   end
 
+  fsm.needAircraftStartImpulseUp = false
   fsm.target = System.GetEntityByName(behaviorSave.targetName)
 
   RunStateManagerAsync(fsm)

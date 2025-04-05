@@ -162,7 +162,7 @@ end
 function SetNavigationToFastFlyAndGetIsCrossed(entity, targetPosition, currentToTargetDirection, minimalZOffset)
 	local vRotateDir = SubVectorsNormalizedOnXY(targetPosition, entity:GetPos())
 	local scalarBetweenDirections = dotproduct3d(vRotateDir, currentToTargetDirection)
-	Log("Fast fly dot: %f", scalarBetweenDirections)
+	-- Log("Fast fly dot: %f", scalarBetweenDirections)
 	local isCrossedSuccessfully = scalarBetweenDirections < 0
 
 	local navigationDirection = {}

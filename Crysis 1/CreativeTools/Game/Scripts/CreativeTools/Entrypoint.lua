@@ -1,6 +1,7 @@
 Script.ReloadScript("Scripts/common.lua");
 Script.ReloadScript("Scripts/CreativeTools/Tools/SpawnTool.lua");
 Script.ReloadScript("Scripts/CreativeTools/Tools/ReinforcementsTool.lua");
+Script.ReloadScript("Scripts/CreativeTools/GlobalActions.lua");
 
 
 function Player:OnActionCreativeTools(action, activation)
@@ -19,6 +20,8 @@ function Player:OnActionCreativeTools(action, activation)
     elseif self:IsUsingReinforcementsToolNow() then
         local reinforcementTool = self:GetOrInitReinforcementsTool()
         reinforcementTool:OnAction(action, activation)
+    else
+        InvokeGlobalActions(self, action, activation)
     end
 end
 
@@ -65,7 +68,6 @@ function Player:OnLoadCreativeTools(saved)
 
         Log("Save load successfully")
     end, data)
-
 end
 
 function InvokeCreativeToolsCommand()

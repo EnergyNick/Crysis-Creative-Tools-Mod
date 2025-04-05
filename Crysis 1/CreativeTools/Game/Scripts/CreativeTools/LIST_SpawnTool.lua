@@ -26,44 +26,34 @@ EntitySpawnList =
 			{
 				name = "VTOL",
 				class = "US_vtol",
-				archetype = nil,
 				zOffset = 4
 			},
-			-- {
-			-- 	name = "vtol-extend",
-			-- 	class = "US_vtol",
-			-- 	archetype = "Vehicles.Air.US_VTOL_Ascension",
-			-- 	zOffset = 4
-			-- },
+			{
+				name = "VTOL Extend",
+				class = "US_vtol",
+				archetype = "Vehicles.Air.US_VTOL_Ascension",
+				zOffset = 4
+			},
 			{
 				name = "Tank",
 				class = "US_tank",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Tank with Gauss",
 				class = "US_tank",
 				archetype = "Vehicles.Land.US_tank_wGauss",
-				zOffset = 0.5
 			},
 			{
 				name = "APC",
 				class = "US_apc",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Hovercraft",
 				class = "US_hovercraft",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "LTV",
 				class = "US_ltv",
-				archetype = nil,
-				zOffset = 0.5
 			},
 		},
 
@@ -122,7 +112,7 @@ EntitySpawnList =
 		},
 
 		{
-			name = "US Vehicles with crew",
+			name = "NPC Vehicles",
 			{
 				name = "VTOL",
 				class = "US_vtol",
@@ -181,6 +171,95 @@ EntitySpawnList =
 				}
 			},
 		},
+
+		{
+			name = "Vehicles with crew",
+			{
+				name = "VTOL",
+				class = "US_vtol",
+				zOffset = 4,
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-pilot-navy" },
+				}
+			},
+			{
+				name = "Tank",
+				class = "US_tank",
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-tank-driver-5" },
+				}
+			},
+			{
+				name = "Tank with Gauss",
+				class = "US_tank",
+				archetype = "Vehicles.Land.US_tank_wGauss",
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-tank-driver-5" },
+				}
+			},
+			{
+				name = "LTV",
+				class = "US_ltv",
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-tank-driver-4" },
+					{ templateKey = "us-rifleman-3b" },
+				}
+			},
+		},
+
+		{
+			name = "Vehicles with reinforcements",
+			{
+				name = "VTOL with Heavy Squad",
+				class = "US_vtol",
+				zOffset = 4,
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-pilot-navy" 									},
+					{ templateKey = "us-rifleman-5b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-6b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-sniper-1" 		  , behavior = "human_fighting" },
+					{ templateKey = "us-sniper-gauss-law" , behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-3b" 	  , behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-5b-heavy", behavior = "human_fighting" },
+				}
+			},
+			{
+				name = "APC with Heavy Squad",
+				class = "US_apc",
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-rifleman-5b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-6b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-sniper-1" 		  , behavior = "human_fighting" },
+					{ templateKey = "us-sniper-gauss-law" , behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-3b" 	  , behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-5b-heavy", behavior = "human_fighting" },
+				}
+			},
+			{
+				name = "LTV with Heavy Squad",
+				class = "US_ltv",
+				reservedSeatIndexes = { 1 },
+				crew =
+				{
+					{ templateKey = "us-tank-driver-4" },
+					{ templateKey = "us-rifleman-5b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-rifleman-6b-heavy", behavior = "human_fighting" },
+					{ templateKey = "us-sniper-1" 		  , behavior = "human_fighting" },
+				}
+			},
+		},
 	},
 
 	{
@@ -190,44 +269,30 @@ EntitySpawnList =
 			{
 				name = "Helicopter",
 				class = "Asian_helicopter",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Tank",
 				class = "Asian_tank",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "APC",
 				class = "Asian_apc",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Anti Aircraft Artery",
 				class = "Asian_aaa",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Truck",
 				class = "Asian_truck",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "LTV",
 				class = "Asian_ltv",
-				archetype = nil,
-				zOffset = 0.5
 			},
 			{
 				name = "Patrol Boat",
 				class = "Asian_patrolboat",
-				archetype = nil,
-				zOffset = 0.5
 			},
 		},
 
@@ -256,7 +321,7 @@ EntitySpawnList =
 		},
 
 		{
-			name = "Vehicles with crew",
+			name = "NPC Vehicles",
 			{
 				name = "Helicopter",
 				class = "Asian_helicopter",
