@@ -23,10 +23,10 @@ local ToolActions = {
 	["firemode"] = function (self) self:RemoveLastSpawnedEntityGroup() end,
 
 	["hud_openchat"] = function (self)
-		local prevValue = self.player.followingDisabled
-		self.player.followingDisabled = prevValue == nil or prevValue == false
-		local actionName = self.player.followingDisabled and "disabled" or "enabled"
-		local message = string.format("Globally %s following player for friendly entities, spawned as follower", actionName);
+		local prevValue = self.settings.useShortPath
+		self.settings.useShortPath = prevValue == nil or prevValue == false
+		local actionName = self.settings.useShortPath and "Disabled" or "Enabled"
+		local message = string.format("%s use short range to spawn reinforcements vehicle", actionName);
 		HUD.DisplayBigOverlayFlashMessage(message, 3, 400, 375, { x=1, y=1, z=1 });
 	end,
 

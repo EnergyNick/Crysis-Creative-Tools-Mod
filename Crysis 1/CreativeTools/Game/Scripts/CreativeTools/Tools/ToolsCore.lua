@@ -6,7 +6,7 @@ Script.ReloadScript("SCRIPTS/CreativeTools/Utils/AllHelpers.lua");
 
 local GlobalProperties = {
 	minDistance = 3,
-	maxDistance = 25,
+	maxDistance = 150,
 
 	defaultOffsetZ = 0.5,
 }
@@ -14,6 +14,7 @@ local GlobalProperties = {
 UserTool = {
 	toolName = "Default",
 
+	settings = {},
 	spawnedEntityNamesPool = {},
 	creationIndexSequence = 0,
 
@@ -98,7 +99,7 @@ function ApplyEntityCustomizations(entity, spawnInfo, player)
 	-- end
 end
 
-function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEntitiesGroup)
+function UserTool:EntityAdditionalSpawn(entity, spawnInfo)
 	if spawnInfo.playerAsCrewSeatIndex then
 		EnterVehicle(self.player, entity, spawnInfo.playerAsCrewSeatIndex, true)
 	end
@@ -131,11 +132,11 @@ function UserTool:EntityAdditionalActions(entity, hitPosition, spawnInfo, newEnt
 				takenSeats[seatIndex] = true
 				EnterVehicle(subEntity, entity, seatIndex, true)
 
-				ApplyEntityCustomizations(subEntity, currentItem, self)
+				ApplyEntityCustomizations(subEntity, currentItem, self.player)
 
 				local entityName = subEntity:GetName()
 				table.insert(crewNames, entityName)
-				table.insert(newEntitiesGroup, entityName)
+				table.insert(self.spawnedEntityNamesPool, entityName)
 			end
 		end
 
@@ -165,7 +166,12 @@ function UserTool:SpawnEntityWithPositionImprovements(hitPoint, currentItemPrese
 	if (currentItemPreset.spawnDistanceAbovePlayer) then
 		cameraDirection.x = -cameraDirection.x
 		cameraDirection.y = -cameraDirection.y
-		positionToSpawn = GetFarthestValidPositionOnDistanceWithTerrainOffset(self.player, cameraDirection, currentItemPreset.spawnDistanceAbovePlayer, zOffset)
+
+		local distanceAbovePlayer = currentItemPreset.spawnDistanceAbovePlayer
+		if (self.settings.useShortPath == true) then
+			distanceAbovePlayer = distanceAbovePlayer / 2
+		end
+		positionToSpawn = GetFarthestValidPositionOnDistanceWithTerrainOffset(self.player, cameraDirection, distanceAbovePlayer, zOffset)
 	else
 		positionToSpawn = {}
 		CopyVector(positionToSpawn, hitPoint)
@@ -226,14 +232,11 @@ function UserTool:SpawnCurrentSelectedPresetEntity()
 	local entity = self:SpawnEntityWithPositionImprovements(hit.position, currentPreset)
 
 	if (entity) then
-		local newEntitiesGroup = {
-			[1] = entity:GetName()
-		}
+		self:EntityAdditionalSpawn(entity, currentPreset)
 
-		self:EntityAdditionalActions(entity, hit.position, currentPreset, newEntitiesGroup)
-		ApplyEntityCustomizations(entity, currentPreset, self)
+		ApplyEntityCustomizations(entity, currentPreset, self.player)
 
-		table.insert(self.spawnedEntityNamesPool, newEntitiesGroup)
+		table.insert(self.spawnedEntityNamesPool, entity:GetName())
 
 		HUD.DrawStatusText("Spawned ["..currentPreset.name.."]");
 	else
@@ -241,46 +244,37 @@ function UserTool:SpawnCurrentSelectedPresetEntity()
 	end
 end
 
-local function getNotEmptyEntityGroup(array, lastIndex)
+local function popLastExistingEntity(entitiesNames)
+	local lastIndex = count(entitiesNames)
 	if (lastIndex == 0) then
 		return nil
 	end
 
-	local existingCount = 0
-	local groupOfEntities = array[lastIndex]
-	for i, name in pairs(groupOfEntities) do
-		local toDelete = System.GetEntityByName(name);
-		if toDelete then
-			existingCount = existingCount + 1
+	for i = lastIndex, 1, -1 do
+		local entityName = entitiesNames[i]
+		local entity = System.GetEntityByName(entityName)
+		table.remove(entitiesNames, i)
+		if entity then
+			return entity
 		end
 	end
-
-	if existingCount == 0 then
-		return getNotEmptyEntityGroup(array, lastIndex - 1)
-	end
-	return groupOfEntities
 end
 
 function UserTool:RemoveLastSpawnedEntityGroup()
-	local lastEntityGroup = getNotEmptyEntityGroup(self.spawnedEntityNamesPool, count(self.spawnedEntityNamesPool))
+	local entity = popLastExistingEntity(self.spawnedEntityNamesPool, count(self.spawnedEntityNamesPool))
 
-	if (not lastEntityGroup) then
+	if (not entity) then
 		HUD.HitIndicator();
 		return;
 	end
 
-	for _, name in pairs(lastEntityGroup) do
-		local toDelete = System.GetEntityByName(name);
-		if toDelete then
-			DestroyEntity(toDelete)
-		end
-	end
+	local isVehicle = entity.vehicle ~= nil
+	DestroyEntity(entity)
 
-	local countOfDeleted = count(lastEntityGroup)
-	if countOfDeleted == 1 then
+	if isVehicle then
+		HUD.DrawStatusText("Removed vehicle with crew");
+	else
 		HUD.DrawStatusText("Removed entity");
-	elseif countOfDeleted > 1 then
-		HUD.DrawStatusText("Removed group with "..tostring(countOfDeleted).." entities");
 	end
 end
 
@@ -354,25 +348,23 @@ end
 function UserTool:OnSave(save)
 
 	local entityInfos = {}
-	for i, nameGroup in pairs(self.spawnedEntityNamesPool) do
-		for j, name in pairs(nameGroup) do
-			local obj = System.GetEntityByName(name)
-			if obj then
-				local entitySave = {}
-				if obj.spawnInfo then
-					entitySave.spawnInfo = obj.spawnInfo
-				end
-
-				if obj.spawnedCrewNames then
-					local res = {}
-					for _, crewName in pairs(obj.spawnedCrewNames) do
-						table.insert(res, crewName)
-					end
-					entitySave.crewNames = res
-				end
-
-				entityInfos[name] = entitySave
+	for i, name in pairs(self.spawnedEntityNamesPool) do
+		local obj = System.GetEntityByName(name)
+		if obj then
+			local entitySave = {}
+			if obj.spawnInfo then
+				entitySave.spawnInfo = obj.spawnInfo
 			end
+
+			if obj.spawnedCrewNames then
+				local res = {}
+				for _, crewName in pairs(obj.spawnedCrewNames) do
+					table.insert(res, crewName)
+				end
+				entitySave.crewNames = res
+			end
+
+			entityInfos[name] = entitySave
 		end
 	end
 
@@ -381,6 +373,7 @@ function UserTool:OnSave(save)
 		creationIndexSequence = self.creationIndexSequence,
 		currentCategoryIndex = self.currentCategoryIndex,
 		currentElementIndex = self.currentElementIndex,
+		settings = self.settings,
 		spawnedEntityNamesPool = self.spawnedEntityNamesPool,
 		spawnedEntityAdditionalInfos = entityInfos
 	}
@@ -393,35 +386,29 @@ function UserTool:OnLoad(saved)
 		self.creationIndexSequence = fromSave.creationIndexSequence
 		self.currentCategoryIndex = fromSave.currentCategoryIndex
 		self.currentElementIndex = fromSave.currentElementIndex
+		self.settings = fromSave.settings or {}
 		self.spawnedEntityNamesPool = {}
 
-		for i, nameGroup in pairs(fromSave.spawnedEntityNamesPool) do
-			local newGroup = {}
-			for j, name in pairs(nameGroup) do
-				local obj = System.GetEntityByName(name)
-				if obj then
-					table.insert(newGroup, name)
+		for _, name in pairs(fromSave.spawnedEntityNamesPool) do
+			local obj = System.GetEntityByName(name)
+			if obj then
+				table.insert(self.spawnedEntityNamesPool, name)
 
-					if fromSave.spawnedEntityAdditionalInfos and fromSave.spawnedEntityAdditionalInfos[name] then
-						local infos = fromSave.spawnedEntityAdditionalInfos[name]
+				if fromSave.spawnedEntityAdditionalInfos and fromSave.spawnedEntityAdditionalInfos[name] then
+					local infos = fromSave.spawnedEntityAdditionalInfos[name]
 
-						if infos.spawnInfo then
-							obj.spawnInfo = infos.spawnInfo
+					if infos.spawnInfo then
+						obj.spawnInfo = infos.spawnInfo
+					end
+
+					if infos.crewNames then
+						local res = {}
+						for j, crewName in pairs(infos.crewNames) do
+							table.insert(res, crewName)
 						end
-
-						if infos.crewNames then
-							local res = {}
-							for j, crewName in pairs(infos.crewNames) do
-								table.insert(res, crewName)
-							end
-							obj.spawnedCrewNames = res
-						end
+						obj.spawnedCrewNames = res
 					end
 				end
-			end
-
-			if count(newGroup) > 0 then
-				table.insert(self.spawnedEntityNamesPool, newGroup)
 			end
 		end
 

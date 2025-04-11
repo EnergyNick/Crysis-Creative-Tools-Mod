@@ -5,7 +5,8 @@ Script.ReloadScript("Scripts/CreativeTools/CustomBehaviors/StateManager.lua");
 local behaviorOptions =
 {
 	distanceAroundToAttackPoint = 15,
-  distanceAroundToFindEnemies = 30,
+  distanceAroundToFindEnemies = 200,
+  distanceAroundToFindPlayer = 120,
 }
 
 local behaviorSetup =
@@ -36,7 +37,7 @@ local behaviorSetup =
     Normal = function(state)
       -- Ignore manual state setup, if entity with attention on hostile
       if (IsEntityAttentionOnHostile(state.entity)) then
-        return 4000
+        return 15000
       end
 
       local randResult = random(1, 3)
@@ -44,24 +45,30 @@ local behaviorSetup =
         Log("[%s] Select patrol walking", state.entity:GetName())
         AI.SetStance(state.entity.id, BODYPOS_STAND)
         state.entity:SelectPipe(0, "patrol_random_walk")
-        return 10000
+        return 30000
       elseif randResult == 2 then
         Log("[%s] Select random look", state.entity:GetName())
-        state.entity:SelectPipe(0, "random_look_around")
-        return 5000
+        state.entity:SelectPipe(0, "patrol_random_look") -- random_look_around
+        return 15000
       else
         Log("[%s] Select search enemy target", state.entity:GetName())
         local targets = GetNearestEnemiesEntities(state.entity, behaviorOptions.distanceAroundToFindEnemies, AIOBJECT_PUPPET)
-        Log("[%s] Find %i targets", state.entity:GetName(), count(targets))
+
+        if state.isHostileToPlayer and targets and count(targets) > 0 then
+          targets = GetNearestEnemiesEntities(state.entity, behaviorOptions.distanceAroundToFindPlayer, AIOBJECT_PLAYER)
+        end
+
+        Log("[%s] Found %i targets", state.entity:GetName(), count(targets))
 
         if targets and count(targets) > 0 then
           local enemyChoose = random(1, count(targets))
 
-          OrderEntitySpeedOfAction(state.entity, 3)
           local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), targets[enemyChoose]:GetPos(), behaviorOptions.distanceAroundToAttackPoint)
+          AI.SetStance(state.entity.id, BODYPOS_STAND)
+          OrderEntitySpeedOfAction(state.entity, 4)
           OrderEntityGoToPosition(state.entity, orderPoint)
           Log("[%s] Found target, go to that", state.entity:GetName())
-          return 10000
+          return 30000
         end
         return 3000
       end
@@ -73,7 +80,7 @@ local behaviorSetup =
         return 100
       end
 
-      return 5000
+      return 30000
     end,
   },
 

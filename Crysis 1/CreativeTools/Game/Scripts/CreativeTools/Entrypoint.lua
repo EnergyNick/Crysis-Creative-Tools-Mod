@@ -6,6 +6,10 @@ Script.ReloadScript("Scripts/CreativeTools/GlobalActions.lua");
 
 function Player:OnActionCreativeTools(action, activation)
 
+    -- if action ~= "v_rotatedir" then
+    --     Log("Act: %q Mode: %q", action, activation) -- v_horn
+    -- end
+
     if self:IsUsingSpawnToolNow() then
         -- TODO: Remove after tests
         -- if action == "use" then

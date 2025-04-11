@@ -11,6 +11,7 @@ local behaviorOptions =
 	distanceAroundToFollowingPoint = 5,
   distanceToRunOnFollowing = 15,
   distanceAroundToFindEnemies = 30,
+  distanceAroundToAttackPoint = 15,
 
   timeoutToRetryFollowing = 10,
   timeoutToRetryEntering = 10,
@@ -86,23 +87,33 @@ local behaviorSetup =
           return 4000
         end
 
+        local timeoutTime = nil
         local randResult = random(1, 3)
         if randResult == 1 then
-			    state.entity:SelectPipe(0, "patrol_random_walk");
+          Log("[%s] Select patrol walking", state.entity:GetName())
+          AI.SetStance(state.entity.id, BODYPOS_STAND)
+			    state.entity:SelectPipe(0, "patrol_random_walk")
+          timeoutTime = 15000
         elseif randResult == 2 then
-          state.entity:SelectPipe(0, "random_look_around");
+          Log("[%s] Select random look", state.entity:GetName())
+          state.entity:SelectPipe(0, "patrol_random_look"); -- random_look_around
+          timeoutTime = 6000
         else
           local targets = GetNearestEnemiesEntities(state.entity, behaviorOptions.distanceAroundToFindEnemies, AIOBJECT_PUPPET)
           if targets and count(targets) > 0 then
             local enemyChoose = random(1, count(targets))
 
-            OrderEntitySpeedOfAction(state.entity, 3)
-            OrderEntityGoToPosition(state.entity, targets[enemyChoose]:GetPos())
-            System.Log("Found target, go to that")
+            AI.SetStance(state.entity.id, BODYPOS_STAND)
+            OrderEntitySpeedOfAction(state.entity, 4)
+            local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), targets[enemyChoose]:GetPos(), behaviorOptions.distanceAroundToAttackPoint)
+            OrderEntityGoToPosition(state.entity, orderPoint)
+            Log("[%s] Found target, go to that", state.entity:GetName())
+            timeoutTime = 12000
           end
         end
 
         state.timePointOfOperation = curTime
+        return timeoutTime
       end
     end,
 
@@ -146,7 +157,7 @@ local behaviorSetup =
         --   HUD.DrawStatusText("Can't move to that point directly")
         -- end
 
-        OrderEntitySpeedOfAction(state.entity, 3)
+        OrderEntitySpeedOfAction(state.entity, 4)
         OrderEntityGoToPosition(state.entity, orderPoint)
         state.timePointOfOperation = curTime
       end

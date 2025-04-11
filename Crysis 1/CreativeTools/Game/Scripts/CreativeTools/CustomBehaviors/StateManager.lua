@@ -47,6 +47,7 @@ function CreateStateManagerBasedOnPreset(typeKey, preset, entity, managerSave)
 
     fsm.type = typeKey
     fsm.entity = entityObj
+    fsm.entityName = entityObj:GetName()
     fsm.entity.behaviorType = typeKey
 
     fsm.Actions = preset.fsmStateActions
@@ -125,5 +126,5 @@ function StateManagerIteration(state)
 end
 
 function RunStateManagerAsync(state)
-    Script.SetTimer(1000, StateManagerIteration, state)
+    Script.SetTimer(500, StateManagerIteration, state)
 end

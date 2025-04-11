@@ -109,12 +109,17 @@ function OrderEntityGoToPositionWithSpeed(entity, positionVector, oneOfSpeeds)
 	-- end
 end
 
-
----@param oneOfSpeeds integer From sprint speed to slowest (from 3 to -2)
+local speedByNumber = {
+	[0] = "do_it_super_slow",
+	[1] = "do_it_very_slow",
+	[2] = "do_it_walking",
+	[3] = "do_it_running",
+	[4] = "do_it_sprinting"
+}
+---@param oneOfSpeeds integer From sprint speed to slowest (from 4 to 0)
 function OrderEntitySpeedOfAction(entity, oneOfSpeeds)
-	g_SignalData.iValue = oneOfSpeeds;
-	AI.Signal(SIGNALFILTER_SENDER, 0, "ACT_SPEED", entity.id, g_SignalData);
-	-- AI.SetSpeed(entity.id, 3)
+	local speedStr = speedByNumber[oneOfSpeeds] or "do_it_walking"
+	entity:InsertSubpipe(AIGOALPIPE_SAMEPRIORITY, speedStr);
 end
 
 function ValidateWeaponAttachment(entity, weaponClass,attachmentClass)

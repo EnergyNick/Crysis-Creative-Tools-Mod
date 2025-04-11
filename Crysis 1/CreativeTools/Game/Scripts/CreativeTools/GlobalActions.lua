@@ -1,9 +1,7 @@
 Script.ReloadScript("Scripts/CreativeTools/Utils/AllHelpers.lua");
 
 local function randomWalk(entity)
-    Log("Before patrol")
     entity:SelectPipe(0,"patrol_random_walk");
-    Log("After patrol")
 end
 
 -- TODO: Rework and make behavior type get from specific file
@@ -24,20 +22,17 @@ function InvokeGlobalActions(player, action, activation)
             end
 
             local passengers = GetReinforcementsPassengerEntitiesFromVehicle(vehicle)
-            if vehicle.class == "US_vtol" then
-                Log("Exit VTOL")
+            if vehicle.class == "US_vtol" or vehicle.class == "US_apc" then
                 local previous = nil
                 for i = count(passengers), 1, -1 do
-                    local member = passengers[i]
-                    Log("Type is %q", member.behaviorType)
-                    if not member.actor:IsPlayer() and member.behaviorType == fightingHumanType then
-                      member:DrawWeaponNow();
-                      StartExitByChainAndGoToRandomPointAsync(member, i, previous, randomWalk)
-                      previous = member
+                    local passenger = passengers[i]
+                    if not passenger.actor:IsPlayer() and passenger.behaviorType == fightingHumanType then
+                      passenger:DrawWeaponNow();
+                      StartExitByChainAndGoToRandomPointAsync(passenger, i, previous, randomWalk)
+                      previous = passenger
                     end
                 end
             else
-                Log("Exit vehicle")
                 for _, passenger in pairs(passengers) do
                     if not passenger.actor:IsPlayer() and passenger.behaviorType == fightingHumanType then
                         ExitVehicle(passenger)

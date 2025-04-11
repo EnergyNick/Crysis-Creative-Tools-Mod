@@ -164,7 +164,7 @@ local behaviorSetup =
             local member = toExit[i]
             if not member.actor:IsPlayer() then
               member:DrawWeaponNow();
-              StartExitByChainAndGoToRandomPointAsync(member, i, previous, state.reinforcementFinishAction)
+              StartExitByChainAndGoToRandomPointAsync(member, i, previous, state.reinforcementFinishAction, 8000)
               previous = member
             end
         end

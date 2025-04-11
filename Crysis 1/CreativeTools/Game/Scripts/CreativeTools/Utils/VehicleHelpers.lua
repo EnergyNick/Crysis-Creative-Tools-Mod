@@ -106,10 +106,11 @@ local function toFlyIteration(data)
 
 	if distance < data.takeoffRange then
 		local direction = SubVectorsNormalizedOnXY(data.finalPos, entityPos)
-		direction.z = 13
+		direction.z = 15
 
 		AI.SetForcedNavigation(data.vehicle.id, direction)
-		Script.SetTimer(500, toFlyIteration, data)
+		Script.SetTimer(2000
+		, toFlyIteration, data)
 		System.Log("["..(data.vehicle:GetName()).."]: Order fly up")
 	else
 		if data.vehicle:GetSpeed() > 5 then
@@ -261,7 +262,7 @@ function StartExitByChainAndGoToRandomPointAsync(entity, seatIndex, previousPass
 		isExited = false
 	}
 
-	Script.SetTimer(initialDelay or 8000, ExitByChainAndGoToRandomPoint, data)
+	Script.SetTimer(initialDelay or 1000, ExitByChainAndGoToRandomPoint, data)
 end
 
 ---@param seatIndex integer

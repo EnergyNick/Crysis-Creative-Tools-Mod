@@ -10,8 +10,8 @@ Grouped by category for more logic usability
 - archetype 				=> Name of archetype entity, can find in Editor or from game files 
 - offset    				=> Offset from ground to spawn entity **[Default = 0.5]**
 - maxDistanceOverride   	=> Override of spawn tool maximum distance to spawn
+- spawnDistanceAbovePlayer  => Spawn entity behind player on selected distance
 
 ### Optional, more complex settings
-- crew 	 				    => Valid only for vehicle, spawn and enter solders
+- crew 	 				    => Valid only for vehicle, spawn and enter solders. Can apply all other settings except "crew" setting
 - behavior  				=> Setup custom AI behavior, based on implementation of that mod
-- spawnDistanceAbovePlayer  => Spawn entity behind player on selected distance

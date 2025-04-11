@@ -9,23 +9,21 @@ local ToolActions = {
 
 	["firemode"] = function (self) self:RemoveLastSpawnedEntityGroup() end,
 
+	["hud_openteamchat"] = function (self)
+		local prevValue = self.player.followingDisabled
+		self.player.followingDisabled = prevValue == nil or prevValue == false
+		local actionName = self.player.followingDisabled and "disabled" or "enabled"
+		local message = string.format("Globally %s following player for friendly entities, spawned as 'follower'", actionName);
+		HUD.DisplayBigOverlayFlashMessage(message, 3, 400, 375, { x=1, y=1, z=1 });
+	end,
+
 	["zoom"] = function (self) self:ChangeToNextElementInPreset() end,
 
 	["reload"] = function (self) self:ChangeToNextCategoryInPreset() end,
 
 	["special"] = function (self) self:ChangeToNextGroupInPreset() end,
 
-	["use"] = function (self) 
-			self:ShowSelectedItem(true) 
-			local dir = self.player:GetDirectionVector(1)
-			dump(dir)
-			local vRotateDir = SubVectorsNormalizedOnXY(self.player:GetPos(), g_Vectors.v000)
-			dump(vRotateDir)
-			local scalarBetweenDirections = dotproduct3d(vRotateDir, dir)
-			Log("State: dot = %s", scalarBetweenDirections)
-			-- local res = IsEntityXYDirectionRotatedMoreThan(self.player, g_Vectors.v000, 4)
-			-- Log("Res is "..tostring(res))
-		end,
+	["use"] = function (self) self:ShowSelectedItem(true) end,
 
 	["nextitem"] = function (self) self:ShowSelectedItem(false) end,
 

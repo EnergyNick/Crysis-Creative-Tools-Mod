@@ -77,6 +77,20 @@ EntityPresetTemplates =
         archetype = "US.Grunt/Cover.US_Rifleman_3",
     },
     {
+        key = "us-rifleman-4b-heavy",
+        description = "US heavy solder with Rifle, variant 4",
+        class = "Grunt",
+        archetype = "US.Grunt/Cover.US_Rifleman_4b",
+        weaponAttachments =
+        {
+            { weapon = "SCAR", attachment = "LAMRifle" },
+        },
+        entity_properties =
+        {
+            equip_EquipmentPack="US_Rifleman_LAW"
+        }
+    },
+    {
         key = "us-rifleman-4b",
         description = "US solder with Rifle, variant 4",
         class = "Grunt",
@@ -107,9 +121,7 @@ EntityPresetTemplates =
         archetype = "US.Grunt/Cover.US_Rifleman_5b",
         weaponAttachments =
         {
-        --     { weapon = "SCAR", attachment = "AssaultScope" },
             { weapon = "SCAR", attachment = "LAMRifle" },
-        --     -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
         },
         entity_properties =
         {
@@ -129,40 +141,13 @@ EntityPresetTemplates =
         archetype = "US.Grunt/Cover.US_Rifleman_6",
     },
     {
-        key = "us-rifleman-6b-heavy",
-        description = "US heavy solder with Rifle, variant 6",
-        class = "Grunt",
-        archetype = "US.Grunt/Cover.US_Rifleman_6b",
-        weaponAttachments =
-        {
-        --     { weapon = "SCAR", attachment = "AssaultScope" },
-            { weapon = "SCAR", attachment = "LAMRifle" },
-        --     -- { weapon = "SOCOM", attachment = "SOCOMSilencer" },
-        },
-        entity_properties =
-        {
-            equip_EquipmentPack="US_Rifleman_LAW"
-        }
-    },
-    {
-        key = "us-sniper-1",
+        key = "us-sniper",
         description = "US solder with Sniper",
         class = "Grunt",
         archetype = "US.Grunt/Sniper.US_Sniper",
         entity_properties =
         {
-            -- equip_EquipmentPack="US_Gauss_LAW"
             equip_EquipmentPack="US_Sniper"
-        }
-    },
-    {
-        key = "us-sniper-law",
-        description = "US solder with Sniper",
-        class = "Grunt",
-        archetype = "US.Grunt/Cover.US_Rifleman_2",
-        entity_properties =
-        {
-            equip_EquipmentPack="US_Gauss_LAW"
         }
     },
     {
