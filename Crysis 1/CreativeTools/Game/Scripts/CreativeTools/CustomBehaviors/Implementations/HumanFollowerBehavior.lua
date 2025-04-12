@@ -103,10 +103,11 @@ local behaviorSetup =
           if targets and count(targets) > 0 then
             local enemyChoose = random(1, count(targets))
 
+            local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), targets[enemyChoose]:GetPos(), behaviorOptions.distanceAroundToAttackPoint)
             AI.SetStance(state.entity.id, BODYPOS_STAND)
             OrderEntitySpeedOfAction(state.entity, 4)
-            local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), targets[enemyChoose]:GetPos(), behaviorOptions.distanceAroundToAttackPoint)
             OrderEntityGoToPosition(state.entity, orderPoint)
+
             Log("[%s] Found target, go to that", state.entity:GetName())
             timeoutTime = 12000
           end
@@ -144,12 +145,6 @@ local behaviorSetup =
         return 100
       end
 
-      -- local stance = AI.GetStance(state.entity.id);
-      -- if stance ~= 1 then
-      --   AI.SetStance(entity.id,stance);
-      -- end
-
-
 		  local curTime = _time;
       if (curTime - state.timePointOfOperation) > behaviorOptions.timeoutToRetryFollowing then
         local orderPoint = GetPointNearTargetPosition(state.entity:GetPos(), state.target:GetPos(), behaviorOptions.distanceAroundToFollowingPoint)
@@ -157,6 +152,7 @@ local behaviorSetup =
         --   HUD.DrawStatusText("Can't move to that point directly")
         -- end
 
+        AI.SetStance(state.entity.id, BODYPOS_STAND)
         OrderEntitySpeedOfAction(state.entity, 4)
         OrderEntityGoToPosition(state.entity, orderPoint)
         state.timePointOfOperation = curTime

@@ -65,9 +65,11 @@ function IsEntityAttentionOnHostile(entity)
 	return attentionTarget and AI.Hostile(entity.id, attentionTarget.id)
 end
 
+local orderGoPipeIndex = 2387
+
 function OrderEntityGoToPosition(entity, positionVector)
 	CopyVector(g_SignalData.point, positionVector);
-	g_SignalData.iValue = 1;
+	g_SignalData.iValue = orderGoPipeIndex;
 	AI.Signal(SIGNALFILTER_SENDER, 1, "ACT_GOTO", entity.id, g_SignalData);
 end
 

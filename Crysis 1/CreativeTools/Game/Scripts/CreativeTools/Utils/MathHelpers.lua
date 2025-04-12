@@ -63,20 +63,22 @@ function GetPointNearTargetPosition(sourcePosition, targetPosition, distanceNear
 	return result;
 end
 
-function GetFarthestValidPositionOnDistanceWithTerrainOffset(sourceEntity, direction, distance, zOffset)
+function GetFarthestValidPositionOnDistanceWithTerrainOffset(sourceEntity, direction, distance, zOffset, voidRadiusToStart)
 	local sourceWithZOffset = {}
 	CopyVector(sourceWithZOffset, sourceEntity:GetPos())
 	InPlaceVectorApplyTerrainOffset(sourceWithZOffset, zOffset)
 
 	local iterationStep = distance * 0.1
 	local currentDistance = distance
+	local vPeak = {}
 	while currentDistance > 30 do
 		local positionToSpawn = GetPositionOnDistanceWithTerrainOffset(sourceEntity:GetPos(), direction, currentDistance, zOffset)
 
-		local isInFlyPosition = AI.IsPointInFlightRegion(positionToSpawn);
-		if isInFlyPosition then
+		CopyVector(vPeak, AI.IsFlightSpaceVoidByRadius(positionToSpawn, direction, voidRadiusToStart or 15));
+		Log("Current space vector is %s", VectorToString(vPeak))
+		if (LengthVector(vPeak) < 0.001 or positionToSpawn.z - vPeak.z > 5) then
 			return positionToSpawn
-		end
+		 end
 
 		currentDistance = currentDistance - iterationStep
 	end
