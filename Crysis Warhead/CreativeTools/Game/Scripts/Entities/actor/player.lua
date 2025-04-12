@@ -485,7 +485,7 @@ function Player:SetOnUseData(entityId, slot)
 	self.OnUseSlot = slot
 end
 
-Script.ReloadScript("SCRIPTS/Entities/actor/SpawnerTools.lua");
+Script.ReloadScript("SCRIPTS/CreativeTools/Entrypoint.lua");
 
 function Player:OnAction(action, activation, value)
 	-- gamerules needs to get all player actions all times
@@ -495,7 +495,7 @@ function Player:OnAction(action, activation, value)
 		end
 	end
 
-	self:SpawnerToolAction(action, activation == "press")
+	self:OnActionCreativeTools(action, activation)
 
 	if (action == "use" or action == "xi_use") then	
 		self:UseEntity( self.OnUseEntityId, self.OnUseSlot, activation == "press");
@@ -674,12 +674,17 @@ function Player:OnLoadAI(saved)
 	if(saved.AI) then 
 		self.AI = saved.AI;
 	end
+
+	-- Default OnLoad don't work correctly, that's why we use OnLoadAI
+	self:OnLoadCreativeTools(saved)
 end
 
 function Player:OnSaveAI(save)
 	if(self.AI) then 
 		save.AI = self.AI;
 	end
+
+	self:OnSaveCreativeTools(save)
 end
 
 function Player.Client:OnAnimationEvent(animation,strPar,intPar)	
